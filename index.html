@@ -96,6 +96,7 @@
 <video class="fondo-video" id="fondoVideo" autoplay muted loop playsinline></video>
 
 <audio id="musicaFondo" src="musica/musica.mp3" loop></audio>
+ <button id="btnMusica" class="btn-musica">🔇</button>
   
 <!-- VISTA MENU DE TURNO -->
 <div class="vista" id="vista-menu">
@@ -274,11 +275,19 @@ window.addEventListener("resize", configurarFondo);
  
 // ====================== MUSICA DE FONDO ======================
  
-document.body.addEventListener("click", function iniciarMusica() {
-  document.getElementById("musicaFondo").play();
-}, { once: true });
+const musica = document.getElementById("musicaFondo");
+const btnMusica = document.getElementById("btnMusica");
 
- 
+btnMusica.addEventListener("click", () => {
+  if (musica.paused) {
+    musica.play();
+    btnMusica.textContent = "🔊";
+  } else {
+    musica.pause();
+    btnMusica.textContent = "🔇";
+  }
+});
+
  // ====================== ARRANQUE ======================
 if (estado) {
   irAMenuTurno();
