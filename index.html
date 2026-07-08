@@ -70,8 +70,40 @@
   .footer-link a { color: #666; font-size: 0.8rem; }
 
 /* ---------- CONFIGURACION ---------- */
+/* Igual que bienvenida: ocupa toda la pantalla para que el vídeo de fondo
+   cubra el 100%. El contenido real va dentro de .contenido-config, que sí
+   mantiene el ancho máximo de 480px y queda centrado por encima del vídeo. */
+#vista-config {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
 #vista-config.activa {
   justify-content: center; /* centra todo el bloque verticalmente en la pantalla */
+}
+
+.fondo-video-config {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  background-color: #1a1a2e; /* color de respaldo mientras carga el vídeo */
+}
+
+.contenido-config {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 1.2rem;
 }
 
 /* Tema automático: se añade por JS según el brillo medio del fondo activo.
@@ -314,10 +346,13 @@
 
 <!-- VISTA CONFIGURACION -->
 <div class="vista" id="vista-config">
-  <h1>¿Quién va a jugar?</h1>
-  <div id="camposNombres"></div>
-  <button id="btnAgregarJugador" class="secundario">Añadir jugador</button>
-  <button id="btnListo">Listo</button>
+  <video class="fondo-video-config" id="fondoVideoConfig" autoplay muted loop playsinline></video>
+  <div class="contenido-config">
+    <h1>¿Quién va a jugar?</h1>
+    <div id="camposNombres"></div>
+    <button id="btnAgregarJugador" class="secundario">Añadir jugador</button>
+    <button id="btnListo">Listo</button>
+  </div>
 </div>
 
 <!-- BARRIDO NEGRO -->
@@ -528,15 +563,77 @@ function aplicarTemaSegunImagen(idVista, imagenSrc) {
   img.src = imagenSrc;
 }
 
-// Activa el tema automático (claro/oscuro) para la vista de configuración
-// según la imagen de fondo que le pongas. Cambia la ruta por la tuya real.
-aplicarTemaSegunImagen("vista-config", "config/tu-imagen.jpg");
+// Igual que aplicarTemaSegunImagen, pero toma el fotograma actual de un
+// elemento <video> ya cargado (se usa para los vídeos de fondo de configuración).
+function aplicarTemaSegunVideo(idVista, videoEl) {
+  const vista = document.getElementById(idVista);
+  if (!vista || !videoEl) return;
+
+  const tam = 24;
+  const canvas = document.createElement("canvas");
+  canvas.width = tam;
+  canvas.height = tam;
+  const ctx = canvas.getContext("2d");
+  try {
+    ctx.drawImage(videoEl, 0, 0, tam, tam);
+    const datos = ctx.getImageData(0, 0, tam, tam).data;
+    let total = 0;
+    for (let i = 0; i < datos.length; i += 4) {
+      total += 0.299 * datos[i] + 0.587 * datos[i + 1] + 0.114 * datos[i + 2];
+    }
+    const brillo = total / (tam * tam); // 0 = negro, 255 = blanco
+    if (brillo > 150) {
+      vista.classList.add("tema-claro");
+      vista.classList.remove("tema-oscuro");
+    } else {
+      vista.classList.add("tema-oscuro");
+      vista.classList.remove("tema-claro");
+    }
+  } catch (e) {
+    // Si el navegador no deja leer los píxeles (por CORS), usamos tema oscuro por defecto
+    vista.classList.add("tema-oscuro");
+  }
+}
+
+// Rutas de los vídeos de fondo para la vista de configuración
+const VIDEOS_CONFIG_ESCRITORIO = ["iniciopc/fondopc.mp4"];
+const VIDEOS_CONFIG_MOVIL = [
+  "iniciomovil/fondo1-movil.mp4.mp4",
+  "iniciomovil/fondo2-movil.mp4.mp4",
+  "iniciomovil/fondo3-movil.mp4.mp4",
+  "iniciomovil/fondo4-movil.mp4.mp4",
+  "iniciomovil/fondo5-movil.mp4.mp4",
+  "iniciomovil/fondo6-movil.mp4.mp4"
+];
+
+function elegirAleatorio(lista) {
+  return lista[Math.floor(Math.random() * lista.length)];
+}
+
+// Elige un vídeo al azar (según si es móvil o escritorio), lo pone de fondo
+// en la vista de configuración y, en cuanto tiene un fotograma listo,
+// calcula el tema de color (claro/oscuro) automáticamente.
+function configurarFondoConfig() {
+  const video = document.getElementById("fondoVideoConfig");
+  const lista = esMovilVertical() ? VIDEOS_CONFIG_MOVIL : VIDEOS_CONFIG_ESCRITORIO;
+  video.src = elegirAleatorio(lista);
+  video.muted = true;
+  video.load();
+  video.play().catch(() => {
+    // Si el navegador bloquea el autoplay, no pasa nada especial;
+    // el vídeo se queda parado en el primer fotograma.
+  });
+  video.addEventListener("loadeddata", () => aplicarTemaSegunVideo("vista-config", video), { once: true });
+}
+
+configurarFondoConfig();
 
 window.addEventListener("resize", () => {
   const nuevaOrientacion = esMovilVertical();
   if (nuevaOrientacion !== orientacionActual) {
     orientacionActual = nuevaOrientacion;
     configurarFondoBienvenida();
+    configurarFondoConfig();
   }
 });
  
