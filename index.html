@@ -32,6 +32,29 @@
   h1 { font-size: 1.3rem; text-align: center; margin: 0 0 1.2rem; }
   h2 { font-size: 1rem; color: #a29bfe; margin: 1.2rem 0 0.4rem; }
 
+ .btn-musica {
+  position: fixed !important;
+  top: 1rem;
+  right: 1rem;
+  z-index: 999;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.5);
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.btn-musica img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
   input, select {
     width: 100%;
     padding: 0.65rem;
@@ -97,7 +120,9 @@
 <video class="fondo-video" id="fondoVideo" autoplay muted loop playsinline></video>
 
 <audio id="musicaFondo" src="musica/musica.mp3" loop></audio>
- <button id="btnMusica" class="btn-musica">🔇</button>
+<button id="btnMusica" class="btn-musica">
+  <img src="inicio/icono-musica.jpg" alt="Musica">
+</button>
   
 <!-- VISTA MENU DE TURNO -->
 <div class="vista" id="vista-menu">
