@@ -673,7 +673,10 @@ document.getElementById("vista-bienvenida").addEventListener("click", () => {
 
 // ====================== AÑADIR / QUITAR JUGADORES ======================
 
+// ====================== AÑADIR / QUITAR JUGADORES ======================
+
 let totalJugadores = 2;
+
 function crearCampoNombre(indice) {
   const wrap = document.createElement("div");
   wrap.className = "campo-nombre-wrap";
@@ -688,17 +691,13 @@ function crearCampoNombre(indice) {
     btnQuitar.className = "btn-quitar-jugador";
     btnQuitar.textContent = "✕";
     btnQuitar.type = "button";
-    // El borrado se gestiona por delegación de eventos más abajo (ver
-    // camposNombres.addEventListener), así que aquí no hace falta listener.
     wrap.appendChild(btnQuitar);
   }
 
   return wrap;
 }
 
-// Delegación de eventos: un único listener en el contenedor detecta el clic
-// en CUALQUIER botón de borrar, presente o futuro, sin depender de ids ni
-// de que cada botón tenga su propio listener (más fiable, especialmente en móvil).
+// Delegación de eventos para borrar jugadores
 camposNombres.addEventListener("click", (e) => {
   const btn = e.target.closest(".btn-quitar-jugador");
   if (!btn) return;
@@ -731,42 +730,17 @@ function actualizarCamposNombres() {
   actualizarBotonAgregar();
 }
 
+// ESTE ES EL EVENTO QUE ESTABA DUPLICADO. AHORA SOLO HAY UNO.
 document.getElementById("btnAgregarJugador").addEventListener("click", () => {
   if (totalJugadores >= 6) return;
   totalJugadores++;
   actualizarCamposNombres();
 });
 
+// Inicializamos la vista por primera vez
 actualizarCamposNombres();
 
-function renombrarPlaceholders() {
-  const campos = camposNombres.querySelectorAll(".campo-nombre-wrap input");
-  campos.forEach((input, i) => {
-    input.placeholder = "Nombre jugador " + (i + 1);
-  });
-}
-
-function actualizarBotonAgregar() {
-  const btnAgregar = document.getElementById("btnAgregarJugador");
-  btnAgregar.style.display = totalJugadores >= 6 ? "none" : "block";
-}
-
-function actualizarCamposNombres() {
-  camposNombres.innerHTML = "";
-  for (let i = 0; i < totalJugadores; i++) {
-    camposNombres.appendChild(crearCampoNombre(i));
-  }
-  actualizarBotonAgregar();
-}
-
-document.getElementById("btnAgregarJugador").addEventListener("click", () => {
-  if (totalJugadores >= 6) return;
-  totalJugadores++;
-  actualizarCamposNombres();
-});
-
-actualizarCamposNombres();
-
+ 
 // ====================== BARRIDO NEGRO ENTRE VISTAS ======================
 function transicionABarrido(callback) {
   const barrido = document.getElementById("barridoNegro");
