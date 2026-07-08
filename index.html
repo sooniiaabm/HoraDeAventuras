@@ -86,8 +86,8 @@
   top: 1rem;
   right: 1rem;
   z-index: 999;
-  width: 50px;
-  height: 50px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
   background: rgba(0,0,0,0.5);
   border: none;
@@ -102,6 +102,25 @@
   height: 100%;
   object-fit: contain;
   display: block;
+}
+
+/* Línea diagonal que aparece cuando está silenciado */
+.btn-musica::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 8%;
+  width: 84%;
+  height: 3px;
+  background: #ff4757;
+  transform: translateY(-50%) rotate(-45deg);
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.btn-musica.silenciado::after {
+  opacity: 1;
 }
   
 </style>
@@ -322,8 +341,10 @@ const btnMusica = document.getElementById("btnMusica");
 btnMusica.addEventListener("click", () => {
   if (musica.paused) {
     musica.play();
+    btnMusica.classList.remove("silenciado");
   } else {
     musica.pause();
+    btnMusica.classList.add("silenciado");
   }
 });
  
