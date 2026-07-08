@@ -69,6 +69,28 @@
   .footer-link { text-align: center; margin-top: 1.5rem; }
   .footer-link a { color: #666; font-size: 0.8rem; }
 
+/* ---------- CONFIGURACION ---------- */
+#vista-config.activa {
+  justify-content: center; /* centra todo el bloque verticalmente en la pantalla */
+}
+
+/* Tema automático: se añade por JS según el brillo medio del fondo activo.
+   Por defecto (sin fondo, o fondo oscuro) se usan los colores actuales (claros sobre oscuro). */
+#vista-config.tema-claro h1 { color: #1a1a2e; }
+#vista-config.tema-claro input {
+  background: rgba(255,255,255,0.85);
+  color: #1a1a2e;
+  border-color: #bbb;
+}
+#vista-config.tema-claro input::placeholder { color: #555; }
+#vista-config.tema-claro button.secundario {
+  border-color: #1a1a2e;
+  color: #1a1a2e;
+}
+#vista-config.tema-claro .btn-quitar-jugador {
+  border: 2px solid #fff;
+}
+
 /* ---------- BIENVENIDA ---------- */
 /* Esta vista escapa del ancho máximo de 480px: ocupa TODA la pantalla
    (position: fixed, inset 0) para poder usarse como fondo a pantalla completa
@@ -94,6 +116,8 @@
 }
 
 .texto-toca {
+  /* Centrado en el eje horizontal, y colocado en la mitad del primer
+     cuarto de pantalla empezando desde abajo (12.5% desde el borde inferior) */
   position: absolute;
   bottom: 12.5%;
   left: 50%;
@@ -107,6 +131,7 @@
   animation: parpadeoToca 1.6s ease-in-out infinite;
   pointer-events: none;
   text-align: center;
+  white-space: nowrap;
 }
 
 @keyframes parpadeoToca {
@@ -289,8 +314,7 @@
 
 <!-- VISTA CONFIGURACION -->
 <div class="vista" id="vista-config">
-  <h1>¿Cuántos jugadores sois?</h1>
-  <input type="number" id="numJugadores" min="2" max="6" value="2">
+  <h1>¿Quién va a jugar?</h1>
   <div id="camposNombres"></div>
   <button id="btnAgregarJugador" class="secundario">Añadir jugador</button>
   <button id="btnListo">Listo</button>
@@ -365,7 +389,6 @@ function mostrarVista(id) {
 }
 
 // ====================== CONFIGURACION ======================
-const numJugadoresInput = document.getElementById("numJugadores");
 const camposNombres = document.getElementById("camposNombres");
 
 document.getElementById("btnListo").addEventListener("click", () => {
@@ -460,6 +483,51 @@ function configurarFondoBienvenida() {
 configurarFondoBienvenida();
 let orientacionActual = esMovilVertical();
 
+// ====================== TEMA AUTOMÁTICO SEGÚN EL FONDO ======================
+// Analiza el brillo medio de una imagen de fondo y añade la clase "tema-claro"
+// o "tema-oscuro" a la vista indicada, para que el texto y los botones se
+// vean siempre bien sin tener que elegir el color a mano.
+// Uso: aplicarTemaSegunImagen("vista-config", "config/fondo1.jpg");
+function aplicarTemaSegunImagen(idVista, imagenSrc) {
+  const vista = document.getElementById(idVista);
+  if (!vista) return;
+
+  if (!imagenSrc) {
+    vista.classList.remove("tema-claro", "tema-oscuro");
+    return;
+  }
+
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.onload = () => {
+    const tam = 24;
+    const canvas = document.createElement("canvas");
+    canvas.width = tam;
+    canvas.height = tam;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, tam, tam);
+    try {
+      const datos = ctx.getImageData(0, 0, tam, tam).data;
+      let total = 0;
+      for (let i = 0; i < datos.length; i += 4) {
+        total += 0.299 * datos[i] + 0.587 * datos[i + 1] + 0.114 * datos[i + 2];
+      }
+      const brillo = total / (tam * tam); // 0 = negro, 255 = blanco
+      if (brillo > 150) {
+        vista.classList.add("tema-claro");
+        vista.classList.remove("tema-oscuro");
+      } else {
+        vista.classList.add("tema-oscuro");
+        vista.classList.remove("tema-claro");
+      }
+    } catch (e) {
+      // Si el navegador no deja leer los píxeles (por CORS), usamos tema oscuro por defecto
+      vista.classList.add("tema-oscuro");
+    }
+  };
+  img.src = imagenSrc;
+}
+
 window.addEventListener("resize", () => {
   const nuevaOrientacion = esMovilVertical();
   if (nuevaOrientacion !== orientacionActual) {
@@ -539,7 +607,6 @@ function renombrarPlaceholders() {
 function actualizarBotonAgregar() {
   const btnAgregar = document.getElementById("btnAgregarJugador");
   btnAgregar.style.display = totalJugadores >= 6 ? "none" : "block";
-  numJugadoresInput.value = totalJugadores;
 }
 
 function actualizarCamposNombres() {
