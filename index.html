@@ -322,10 +322,8 @@ const btnMusica = document.getElementById("btnMusica");
 btnMusica.addEventListener("click", () => {
   if (musica.paused) {
     musica.play();
-    btnMusica.textContent = "🔊";
   } else {
     musica.pause();
-    btnMusica.textContent = "🔇";
   }
 });
 
