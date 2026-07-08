@@ -230,49 +230,7 @@
   .mazo-circular .icono-circular { width: 90px; height: 90px; }
 }
 
- .logo-animado {
-  position: relative;
-  width: 100%;
-  max-width: 280px;
-}
-.logo-top { width: 100%; display: block; }
-.logo-bottom-wrap {
-  position: relative;
-  width: 100%;
-  animation: volarGrupo 2.6s ease-in-out infinite;
-}
-.logo-bottom { width: 100%; display: block; }
 
-.ala-finn, .ala-jake {
-  position: absolute;
-  top: 0.7%;
-  width: 19%;
-}
-.ala-finn {
-  left: 0;
-  transform-origin: 90% 30%;
-  animation: aletearFinn 0.9s ease-in-out infinite;
-}
-.ala-jake {
-  right: 0;
-  transform-origin: 10% 30%;
-  animation: aletearJake 0.9s ease-in-out infinite;
-  animation-delay: 0.1s;
-}
-
-@keyframes volarGrupo {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-@keyframes aletearFinn {
-  0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(10deg); }
-}
-@keyframes aletearJake {
-  0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(-10deg); }
-}
- 
 .btn-musica {
   position: fixed !important;
   top: 1rem;
@@ -321,17 +279,9 @@
 
 <!-- VISTA BIENVENIDA -->
 <div class="vista activa" id="vista-bienvenida">
-   <div class="logo-wrap">
-  <div class="logo-animado">
-    <img src="icono/top.png" class="logo-top" alt="Adventure Time">
-    <div class="logo-bottom-wrap">
-      <img src="icono/bottom_nowings.png" class="logo-bottom" alt="">
-      <img src="icono/finn_wing.png" class="ala-finn" alt="">
-      <img src="icono/jake_wing.png" class="ala-jake" alt="">
-    </div>
+  <div class="logo-wrap">
+    <img src="icono/logo.png" alt="Hora de aventuras" id="logoEntrada">
   </div>
-</div>
-
   <button id="btnJugar" class="btn-jugar">Jugar</button>
 </div>
 
