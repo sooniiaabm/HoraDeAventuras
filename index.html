@@ -78,8 +78,7 @@
 </style>
 </head>
 <body>
-<div class="fondo-gif"></div>
-
+ 
 <!-- VISTA CONFIGURACION -->
 <div class="vista activa" id="vista-config">
   <h1>Configuración</h1>
@@ -91,6 +90,10 @@
 </div>
 
 <!-- VISTA MENU DE TURNO -->
+ <div class="fondo-gif"></div>
+ 
+<audio id="musicaFondo" src="musica.mp3" loop></audio>
+  
 <div class="vista" id="vista-menu">
   <h1>Turno de</h1>
   <div class="nombre-turno" id="nombreTurno"></div>
@@ -240,9 +243,17 @@ document.getElementById("btnReiniciarTodo").addEventListener("click", (e) => {
     location.reload();
   }
 });
-// ====================== FONDO CAMBIANTE ======================// Imágenes para pantallas anchas (ordenador, móvil horizontal)const FONDOS_ESCRITORIO = ["fondo1.jpg", "fondo2.jpg", "fondo3.jpg"];// Imágenes para móvil en vertical (ideal: proporción alta, ej. 1080x1920)const FONDOS_MOVIL = ["fondo1-movil.jpg", "fondo2-movil.jpg", "fondo3-movil.jpg"]; const TIEMPO_ENTRE_CAMBIOS = 8000; // milisegundos (8000 = 8 segundos) function esMovilVertical() {  return window.matchMedia("(orientation: portrait)").matches;}function listaFondosActual() {  const lista = esMovilVertical() ? FONDOS_MOVIL : FONDOS_ESCRITORIO;  return lista.length > 0 ? lista : FONDOS_ESCRITORIO;} let indiceFondo = 0;let capaVisible = document.getElementById("fondoA");let capaOculta = document.getElementById("fondoB"); const listaInicial = listaFondosActual();if (listaInicial.length > 0) {  capaVisible.style.backgroundImage = "url('" + listaInicial[0] + "')";  capaVisible.classList.add("visible");} function cambiarFondo() {  const lista = listaFondosActual();  if (lista.length < 2) return;  indiceFondo = (indiceFondo + 1) % lista.length;  capaOculta.style.backgroundImage = "url('" + lista[indiceFondo] + "')";  capaOculta.classList.add("visible");  capaVisible.classList.remove("visible");  const temp = capaVisible;  capaVisible = capaOculta;  capaOculta = temp;} setInterval(cambiarFondo, TIEMPO_ENTRE_CAMBIOS);
+
+// ====================== FONDO GIF inicio ======================
+const gif = esMovilVertical() ? 'fondo-movil.gif' : 'fondo-escritorio.gif';
+document.querySelector('.fondo-gif').style.backgroundImage = `url('${gif}')`;
+
+// ====================== MUSICA DE FONDO ======================
+document.body.addEventListener("click", function iniciarMusica() {
+  document.getElementById("musicaFondo").play();
+}, { once: true });
  
-// ====================== ARRANQUE ======================
+ // ====================== ARRANQUE ======================
 if (estado) {
   irAMenuTurno();
 }
