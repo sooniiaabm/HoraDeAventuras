@@ -14,7 +14,15 @@
     color: #f1f1f1;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
-
+.contenido-config {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 480px;
+  margin: auto;
+  /* Añadimos mucho más espacio (padding) abajo para engañar a iOS */
+  padding: 1.2rem 1.2rem 6rem 1.2rem; 
+}
   .vista { display: none; padding: 1.2rem; max-width: 480px; margin: 0 auto; min-height: 100vh; }
   .vista.activa { display: flex; flex-direction: column; }
   h1 { font-size: 1.3rem; text-align: center; margin: 0 0 1.2rem; }
