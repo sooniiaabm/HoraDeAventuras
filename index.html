@@ -123,6 +123,70 @@
   border: 2px solid #fff;
 }
 
+/* ---------- SELECTOR DE PERSONAJES ---------- */
+.jugador-config {
+  margin-bottom: 1.4rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.personajes-grid {
+  display: flex;
+  gap: 0.7rem;
+  overflow-x: auto;
+  padding: 0.4rem 0.1rem 0.6rem;
+  scrollbar-width: none;
+}
+.personajes-grid::-webkit-scrollbar { display: none; }
+
+.personaje-avatar {
+  all: unset;
+  flex: 0 0 auto;
+  width: 62px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.personaje-avatar .icono-circular {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid transparent;
+  background: #2c2c54;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.personaje-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.personaje-avatar span {
+  font-size: 0.68rem;
+  color: #ccc;
+  text-align: center;
+  line-height: 1.1;
+}
+
+.personaje-avatar:hover { opacity: 0.85; }
+
+.personaje-avatar.seleccionado {
+  opacity: 1;
+  transform: scale(1.08);
+}
+.personaje-avatar.seleccionado .icono-circular {
+  border-color: #6c63ff;
+}
+.personaje-avatar.seleccionado span { color: #fff; font-weight: 600; }
+
+.personaje-avatar.ocupado {
+  opacity: 0.25;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+ 
 /* ---------- BIENVENIDA ---------- */
 /* Esta vista escapa del ancho máximo de 480px: ocupa TODA la pantalla
    (position: fixed, inset 0) para poder usarse como fondo a pantalla completa
@@ -671,8 +735,69 @@ document.getElementById("vista-bienvenida").addEventListener("click", () => {
   });
 });
 
-// ====================== AÑADIR / QUITAR JUGADORES ======================
+/* ---------- SELECTOR DE PERSONAJES ---------- */
+.jugador-config {
+  margin-bottom: 1.4rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
 
+.personajes-grid {
+  display: flex;
+  gap: 0.7rem;
+  overflow-x: auto;
+  padding: 0.4rem 0.1rem 0.6rem;
+  scrollbar-width: none;
+}
+.personajes-grid::-webkit-scrollbar { display: none; }
+
+.personaje-avatar {
+  all: unset;
+  flex: 0 0 auto;
+  width: 62px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.personaje-avatar .icono-circular {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid transparent;
+  background: #2c2c54;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.personaje-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.personaje-avatar span {
+  font-size: 0.68rem;
+  color: #ccc;
+  text-align: center;
+  line-height: 1.1;
+}
+
+.personaje-avatar:hover { opacity: 0.85; }
+
+.personaje-avatar.seleccionado {
+  opacity: 1;
+  transform: scale(1.08);
+}
+.personaje-avatar.seleccionado .icono-circular {
+  border-color: #6c63ff;
+}
+.personaje-avatar.seleccionado span { color: #fff; font-weight: 600; }
+
+.personaje-avatar.ocupado {
+  opacity: 0.25;
+  cursor: not-allowed;
+  pointer-events: none;
+}
 // ====================== AÑADIR / QUITAR JUGADORES ======================
 
 let totalJugadores = 2;
@@ -740,6 +865,53 @@ document.getElementById("btnAgregarJugador").addEventListener("click", () => {
 // Inicializamos la vista por primera vez
 actualizarCamposNombres();
 
+ camposNombres.addEventListener("click", (e) => {
+  const avatarBtn = e.target.closest(".personaje-avatar");
+  if (avatarBtn) {
+    if (avatarBtn.classList.contains("ocupado")) return;
+    const grid = avatarBtn.closest(".personajes-grid");
+    const yaEstaba = avatarBtn.classList.contains("seleccionado");
+    grid.querySelectorAll(".personaje-avatar").forEach(b => b.classList.remove("seleccionado"));
+    if (!yaEstaba) avatarBtn.classList.add("seleccionado");
+    actualizarDisponibilidadPersonajes();
+  }
+});
+
+function actualizarDisponibilidadPersonajes() {
+  const grids = camposNombres.querySelectorAll(".personajes-grid");
+  const elegidos = [];
+  grids.forEach(grid => {
+    const sel = grid.querySelector(".personaje-avatar.seleccionado");
+    if (sel) elegidos.push(sel.dataset.personaje);
+  });
+  grids.forEach(grid => {
+    grid.querySelectorAll(".personaje-avatar").forEach(btn => {
+      const esDeOtro = elegidos.includes(btn.dataset.personaje) && !btn.classList.contains("seleccionado");
+      btn.classList.toggle("ocupado", esDeOtro);
+    });
+  });
+}
+
+ document.getElementById("btnListo").addEventListener("click", () => {
+  const jugadores = [];
+  document.querySelectorAll(".jugador-config").forEach((wrap, i) => {
+    const nombre = wrap.querySelector("input").value.trim() || ("Jugador " + (i + 1));
+    const seleccionado = wrap.querySelector(".personaje-avatar.seleccionado");
+    const personaje = seleccionado ? seleccionado.dataset.personaje : null;
+    jugadores.push({ id: i, nombre, personaje });
+  });
+
+  estado = {
+    jugadores,
+    turnoIndex: 0,
+    poolVentaja: mezclar([...VENTAJAS]),
+    poolDesventaja: mezclar([...DESVENTAJAS]),
+    poolCaracol: mezclar([...VENTAJAS.map(t=>({texto:t,tipo:"Ventaja"})), ...DESVENTAJAS.map(t=>({texto:t,tipo:"Desventaja"}))])
+  };
+  guardarEstado();
+
+  transicionABarrido(() => { irAMenuTurno(); });
+});
  
 // ====================== BARRIDO NEGRO ENTRE VISTAS ======================
 function transicionABarrido(callback) {
