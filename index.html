@@ -668,18 +668,6 @@ document.getElementById("vista-bienvenida").addEventListener("click", () => {
 });
 
 // ====================== AÑADIR / QUITAR JUGADORES ======================
-let totalJugadores = 2;
-
-function crearCampoNombre(indice) {
-  const wrap = document.createElement("div");
-  wrap.className = "campo-nombre-wrap";
-  wrap.dataset.indice = indice;
-
-  const input = document.createElement("input");
-  input.placeholder = "Nombre jugador " + (indice + 1);
-  input.id = "nombre" + indice;
-
-  wrap.appendChild(input);
 
 let totalJugadores = 2;
 function crearCampoNombre(indice) {
