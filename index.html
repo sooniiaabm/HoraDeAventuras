@@ -81,6 +81,155 @@
   .footer-link { text-align: center; margin-top: 1.5rem; }
   .footer-link a { color: #666; font-size: 0.8rem; }
 
+/* ---------- BIENVENIDA ---------- */
+#vista-bienvenida {
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  gap: 2rem;
+}
+.logo-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+#logoEntrada {
+  max-width: 280px;
+  width: 70%;
+  transform: translateX(-150%);
+  opacity: 0;
+  animation: entradaLogo 1s ease-out forwards;
+}
+@keyframes entradaLogo {
+  0% { transform: translateX(-150%); opacity: 0; }
+  60% { opacity: 1; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+.btn-jugar {
+  max-width: 220px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  opacity: 0;
+  animation: apareceBoton 0.6s ease-out forwards;
+  animation-delay: 1s;
+}
+@keyframes apareceBoton {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- BARRIDO NEGRO ---------- */
+.barrido-negro {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 2000;
+  transform: scaleX(0);
+  transform-origin: left;
+  pointer-events: none;
+}
+.barrido-negro.entrando {
+  animation: barridoEntra 0.4s ease-in forwards;
+}
+.barrido-negro.saliendo {
+  transform-origin: right;
+  animation: barridoSale 0.4s ease-in forwards;
+}
+@keyframes barridoEntra {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes barridoSale {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+/* ---------- CAMPOS NOMBRE ---------- */
+.campo-nombre-wrap {
+  position: relative;
+  margin-bottom: 0.6rem;
+}
+.campo-nombre-wrap input { margin-bottom: 0; padding-right: 2.5rem; }
+.btn-quitar-jugador {
+  position: absolute;
+  right: 0.4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: #ff4757;
+  color: #fff;
+  border: none;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+/* ---------- MAZOS CIRCULARES ---------- */
+.mazos-contenedor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  align-items: center;
+}
+.mazo-circular {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 320px;
+  padding: 0.5rem;
+  border-radius: 100px;
+  border: none;
+  cursor: pointer;
+  color: white;
+  text-align: left;
+}
+.mazo-circular .icono-circular {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.mazo-circular .icono-circular img {
+  width: 70%;
+  height: 70%;
+  object-fit: contain;
+}
+.mazo-circular .texto-mazo { display: flex; flex-direction: column; }
+.mazo-circular .texto-mazo .nombre-mazo { font-weight: 700; font-size: 1rem; }
+.mazo-circular .texto-mazo .sub { font-weight: 400; font-size: 0.75rem; opacity: 0.85; }
+
+.mazo-prismo { background: linear-gradient(135deg,#8e6bff,#4834d4); }
+.mazo-glitch { background: linear-gradient(135deg,#2c5f4a,#0d2b21); }
+.mazo-caracol { background: linear-gradient(135deg,#20a89e,#0f5a54); }
+
+/* Móvil: solo icono circular, en columna, sin texto */
+@media (max-width: 600px) {
+  .mazo-circular { justify-content: center; max-width: 100px; padding: 0; border-radius: 50%; }
+  .mazo-circular .texto-mazo { display: none; }
+  .mazo-circular .icono-circular { width: 80px; height: 80px; }
+  .mazos-contenedor { flex-direction: column; }
+}
+
+/* Escritorio: también en columna, iconos circulares, sin texto (según lo pedido) */
+@media (min-width: 601px) {
+  .mazos-contenedor { flex-direction: column; align-items: center; }
+  .mazo-circular { justify-content: center; max-width: 110px; padding: 0; border-radius: 50%; }
+  .mazo-circular .texto-mazo { display: none; }
+  .mazo-circular .icono-circular { width: 90px; height: 90px; }
+}
+ 
 .btn-musica {
   position: fixed !important;
   top: 1rem;
@@ -126,41 +275,46 @@
 </style>
 </head>
 <body>
- 
+
+<!-- VISTA BIENVENIDA -->
+<div class="vista activa" id="vista-bienvenida">
+  <div class="logo-wrap">
+    <img src="icono/logo.png" alt="Hora de aventuras" id="logoEntrada">
+  </div>
+  <button id="btnJugar" class="btn-jugar">Jugar</button>
+</div>
+
 <!-- VISTA CONFIGURACION -->
-<div class="vista activa" id="vista-config">
-  <h1>Configuración</h1>
-  <h2>Número de jugadores (máx 6)</h2>
+<div class="vista" id="vista-config">
+  <h1>¿Cuántos jugadores sois?</h1>
   <input type="number" id="numJugadores" min="2" max="6" value="2">
-  <h2>Nombres</h2>
   <div id="camposNombres"></div>
+  <button id="btnAgregarJugador" class="secundario">Añadir jugador</button>
   <button id="btnListo">Listo</button>
 </div>
 
-<video class="fondo-video" id="fondoVideo" autoplay muted loop playsinline></video>
-
-<audio id="musicaFondo" src="musica/musica.mp3" loop></audio>
-<button id="btnMusica" class="btn-musica">
-  <img src="musica/bmo-sin-fondo.gif" alt="Musica">
-</button>
+<!-- BARRIDO NEGRO -->
+<div class="barrido-negro" id="barridoNegro"></div>
   
 <!-- VISTA MENU DE TURNO -->
 <div class="vista" id="vista-menu">
   <h1>Turno de</h1>
   <div class="nombre-turno" id="nombreTurno"></div>
 
-  <button class="mazo-boton mazo-prismo">
-    <img class="icono" src="iconos/prismo.png" alt="">
-    <span>Prismo<span class="sub">Ventaja</span></span>
+ <div class="mazos-contenedor">
+  <button class="mazo-circular mazo-prismo" data-mazo="ventaja">
+    <span class="icono-circular"><img src="iconos/prismo.png" alt="Prismo"></span>
+    <span class="texto-mazo"><span class="nombre-mazo">Prismo</span><span class="sub">Ventaja</span></span>
   </button>
-  <button class="mazo-boton mazo-lich">
-    <img class="icono" src="iconos/lich.png" alt="">
-    <span>Lich<span class="sub">Desventaja</span></span>
+  <button class="mazo-circular mazo-litch" data-mazo="desventaja">
+    <span class="icono-circular"><img src="iconos/litch.png" alt="Litch"></span>
+    <span class="texto-mazo"><span class="nombre-mazo">Litch</span><span class="sub">Desventaja</span></span>
   </button>
-  <button class="mazo-boton mazo-caracol">
-    <img class="icono" src="iconos/caracol.png" alt="">
-    <span>Caracol<span class="sub">Ventaja o desventaja</span></span>
+  <button class="mazo-circular mazo-caracol" data-mazo="caracol">
+    <span class="icono-circular"><img src="iconos/caracol.png" alt="Caracol"></span>
+    <span class="texto-mazo"><span class="nombre-mazo">Caracol</span><span class="sub">Ventaja o desventaja</span></span>
   </button>
+</div>
 
   <div class="footer-link"><a href="#" id="btnReiniciarTodo">Reiniciar partida</a></div>
 </div>
@@ -206,24 +360,9 @@ function mostrarVista(id) {
 const numJugadoresInput = document.getElementById("numJugadores");
 const camposNombres = document.getElementById("camposNombres");
 
-function actualizarCamposNombres() {
-  const n = Math.min(6, Math.max(2, parseInt(numJugadoresInput.value) || 2));
-  numJugadoresInput.value = n;
-  camposNombres.innerHTML = "";
-  for (let i = 0; i < n; i++) {
-    const input = document.createElement("input");
-    input.placeholder = "Nombre jugador " + (i + 1);
-    input.id = "nombre" + i;
-    camposNombres.appendChild(input);
-  }
-}
-numJugadoresInput.addEventListener("input", actualizarCamposNombres);
-actualizarCamposNombres();
-
 document.getElementById("btnListo").addEventListener("click", () => {
-  const n = parseInt(numJugadoresInput.value);
   const nombres = [];
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < totalJugadores; i++) {
     const val = document.getElementById("nombre" + i).value.trim();
     nombres.push(val || ("Jugador " + (i + 1)));
   }
@@ -238,7 +377,10 @@ document.getElementById("btnListo").addEventListener("click", () => {
     poolCaracol: mezclar([...VENTAJAS.map(t=>({texto:t,tipo:"Ventaja"})), ...DESVENTAJAS.map(t=>({texto:t,tipo:"Desventaja"}))])
   };
   guardarEstado();
-  irAMenuTurno();
+
+  transicionABarrido(() => {
+    irAMenuTurno();
+  });
 });
 
 // ====================== MENU DE TURNO ======================
@@ -347,6 +489,84 @@ btnMusica.addEventListener("click", () => {
     btnMusica.classList.add("silenciado");
   }
 });
+
+// ====================== BIENVENIDA -> CONFIG ======================
+document.getElementById("btnJugar").addEventListener("click", () => {
+  mostrarVista("config");
+});
+
+// ====================== AÑADIR / QUITAR JUGADORES ======================
+let totalJugadores = 2;
+
+function crearCampoNombre(indice) {
+  const wrap = document.createElement("div");
+  wrap.className = "campo-nombre-wrap";
+  wrap.dataset.indice = indice;
+
+  const input = document.createElement("input");
+  input.placeholder = "Nombre jugador " + (indice + 1);
+  input.id = "nombre" + indice;
+
+  wrap.appendChild(input);
+
+  if (indice >= 2) {
+    const btnQuitar = document.createElement("button");
+    btnQuitar.className = "btn-quitar-jugador";
+    btnQuitar.textContent = "✕";
+    btnQuitar.type = "button";
+    btnQuitar.addEventListener("click", () => {
+      wrap.remove();
+      totalJugadores--;
+      actualizarBotonAgregar();
+      renombrarPlaceholders();
+    });
+    wrap.appendChild(btnQuitar);
+  }
+
+  return wrap;
+}
+
+function renombrarPlaceholders() {
+  const campos = camposNombres.querySelectorAll(".campo-nombre-wrap input");
+  campos.forEach((input, i) => {
+    input.placeholder = "Nombre jugador " + (i + 1);
+  });
+}
+
+function actualizarBotonAgregar() {
+  const btnAgregar = document.getElementById("btnAgregarJugador");
+  btnAgregar.style.display = totalJugadores >= 6 ? "none" : "block";
+  numJugadoresInput.value = totalJugadores;
+}
+
+function actualizarCamposNombres() {
+  camposNombres.innerHTML = "";
+  for (let i = 0; i < totalJugadores; i++) {
+    camposNombres.appendChild(crearCampoNombre(i));
+  }
+  actualizarBotonAgregar();
+}
+
+document.getElementById("btnAgregarJugador").addEventListener("click", () => {
+  if (totalJugadores >= 6) return;
+  totalJugadores++;
+  actualizarCamposNombres();
+});
+
+actualizarCamposNombres();
+
+// ====================== BARRIDO NEGRO ENTRE VISTAS ======================
+function transicionABarrido(callback) {
+  const barrido = document.getElementById("barridoNegro");
+  barrido.classList.remove("saliendo");
+  barrido.classList.add("entrando");
+  setTimeout(() => {
+    callback();
+    barrido.classList.remove("entrando");
+    barrido.classList.add("saliendo");
+    setTimeout(() => barrido.classList.remove("saliendo"), 400);
+  }, 400);
+}
  
  // ====================== ARRANQUE ======================
 if (estado) {
