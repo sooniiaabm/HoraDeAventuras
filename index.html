@@ -258,16 +258,17 @@ function elegirAleatorio(lista) {
   return lista[Math.floor(Math.random() * lista.length)];
 }
 
+ function esMovilVertical() {
+  return window.matchMedia("(orientation: portrait)").matches;
+}
+
 function configurarFondo() {
   const video = document.getElementById("fondoVideo");
   const lista = esMovilVertical() ? VIDEOS_MOVIL : VIDEOS_ESCRITORIO;
   video.src = elegirAleatorio(lista);
 }
 
-function esMovilVertical() {
-  return window.matchMedia("(orientation: portrait)").matches;
-}
- 
+
 configurarFondo();
 window.addEventListener("resize", configurarFondo);
  
