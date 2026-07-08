@@ -14,19 +14,7 @@
     color: #f1f1f1;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
- 
-.fondo-video, .fondo-gif {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-}
-.fondo-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
 
-  .fondo-capa.visible { opacity: 1; }
   .vista { display: none; padding: 1.2rem; max-width: 480px; margin: 0 auto; min-height: 100vh; }
   .vista.activa { display: flex; flex-direction: column; }
   h1 { font-size: 1.3rem; text-align: center; margin: 0 0 1.2rem; }
@@ -82,42 +70,47 @@
   .footer-link a { color: #666; font-size: 0.8rem; }
 
 /* ---------- BIENVENIDA ---------- */
+/* Esta vista escapa del ancho máximo de 480px: ocupa TODA la pantalla
+   (position: fixed, inset 0) para poder usarse como fondo a pantalla completa
+   tanto en móvil como en escritorio. */
 #vista-bienvenida {
-  position: relative;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 0;
-  overflow: hidden;
-}
-
-#logoEntrada {
   position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  z-index: -1;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+
+  /* La imagen de fondo se controla por JS (configurarFondoBienvenida),
+     pero dejamos aquí los valores por defecto para que siempre cubra todo */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #1a1a2e; /* color de respaldo mientras carga la imagen */
 }
 
-.btn-jugar {
+.texto-toca {
   position: relative;
   z-index: 1;
-  max-width: 220px;
-  font-size: 1.2rem;
-  font-weight: 700;
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 600;
   letter-spacing: 0.05em;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 1s ease-in, transform 1s ease-in;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  animation: parpadeoToca 1.6s ease-in-out infinite;
   pointer-events: none;
+  text-align: center;
 }
 
-.btn-jugar.visible {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
+@keyframes parpadeoToca {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
 }
+
 /* ---------- BARRIDO NEGRO ---------- */
 .barrido-negro {
   position: fixed;
@@ -243,7 +236,12 @@
   margin: 0;
   cursor: pointer;
   overflow: hidden;
+
+  /* Oculto hasta que se pase de la pantalla de bienvenida */
+  display: none;
 }
+
+.btn-musica.visible { display: block; }
 
 .btn-musica img {
   width: 100%;
@@ -275,20 +273,15 @@
 </head>
 <body>
 
-
- 
-<!-- VISTA BIENVENIDA -->
-
- <video class="fondo-video" id="fondoVideo" loop muted playsinline></video>
-
 <audio id="musicaFondo" src="musica/musica.mp3" loop></audio>
 
 <button class="btn-musica" id="btnMusica">
   <img src="icono/musica.gif" alt="Música">
 </button>
+
+<!-- VISTA BIENVENIDA -->
 <div class="vista activa" id="vista-bienvenida">
-  <video id="logoEntrada" src="icono/logo.mp4" autoplay muted playsinline></video>
-  <button id="btnJugar" class="btn-jugar">Jugar</button>
+  <div class="texto-toca">Toca la pantalla</div>
 </div>
 
 <!-- VISTA CONFIGURACION -->
@@ -347,6 +340,11 @@ const DESVENTAJAS = [
   "No puedes hablar hasta tu próximo turno", "Cambia de sitio con otro jugador"
 ];
 
+// Imágenes de fondo de la pantalla de bienvenida (carpeta "bienvenida")
+// Ajusta estas rutas si tus archivos se llaman de otra forma.
+const IMG_BIENVENIDA_ESCRITORIO = "bienvenida/portatil.jpg";
+const IMG_BIENVENIDA_MOVIL = "bienvenida/movil.jpg";
+
 // ====================== ESTADO ======================
 let estado = cargarEstado();
 
@@ -398,7 +396,7 @@ function irAMenuTurno() {
   document.getElementById("nombreTurno").textContent = jugadorActual().nombre;
 }
 
-document.querySelectorAll(".mazo-boton").forEach(btn => {
+document.querySelectorAll(".mazo-circular").forEach(btn => {
   btn.addEventListener("click", () => sacarCarta(btn.dataset.mazo));
 });
 
@@ -444,41 +442,26 @@ document.getElementById("btnReiniciarTodo").addEventListener("click", (e) => {
   }
 });
 
-// ====================== FONDO ALEATORIO SEGUN DISPOSITIVO ======================
-const VIDEOS_ESCRITORIO = ["iniciopc/fondopc.mp4"];
-const VIDEOS_MOVIL = ["iniciomovil/fondo1-movil.mp4.mp4", "iniciomovil/fondo2-movil.mp4.mp4",
-                      "iniciomovil/fondo3-movil.mp4.mp4", "iniciomovil/fondo4-movil.mp4.mp4",
-                      "iniciomovil/fondo5-movil.mp4.mp4", "iniciomovil/fondo6-movil.mp4.mp4"];
-
-function elegirAleatorio(lista) {
-  return lista[Math.floor(Math.random() * lista.length)];
-}
-
- function esMovilVertical() {
+// ====================== DETECCION DE DISPOSITIVO ======================
+function esMovilVertical() {
   return window.matchMedia("(orientation: portrait)").matches;
 }
 
-function configurarFondo() {
-  const video = document.getElementById("fondoVideo");
-  const lista = esMovilVertical() ? VIDEOS_MOVIL : VIDEOS_ESCRITORIO;
-  video.src = elegirAleatorio(lista);
-  video.muted = true;
-  video.load();
-  video.play().catch(() => {
-    // Si el navegador bloquea el autoplay, no hacemos nada especial,
-    // el usuario vera el boton de play y podra darle igualmente
-  });
+// ====================== FONDO DE LA BIENVENIDA (IMAGEN, NO VIDEO) ======================
+function configurarFondoBienvenida() {
+  const vista = document.getElementById("vista-bienvenida");
+  const imagen = esMovilVertical() ? IMG_BIENVENIDA_MOVIL : IMG_BIENVENIDA_ESCRITORIO;
+  vista.style.backgroundImage = `url("${imagen}")`;
 }
 
-
-configurarFondo();
+configurarFondoBienvenida();
 let orientacionActual = esMovilVertical();
 
 window.addEventListener("resize", () => {
   const nuevaOrientacion = esMovilVertical();
   if (nuevaOrientacion !== orientacionActual) {
     orientacionActual = nuevaOrientacion;
-    configurarFondo();
+    configurarFondoBienvenida();
   }
 });
  
@@ -497,34 +480,21 @@ btnMusica.addEventListener("click", () => {
   }
 });
 
-// ====================== BIENVENIDA -> CONFIG ======================
-document.getElementById("btnJugar").addEventListener("click", () => {
-  mostrarVista("config");
+// ====================== BIENVENIDA -> CONFIG (tocar la pantalla) ======================
+document.getElementById("vista-bienvenida").addEventListener("click", () => {
+  // Arranca la música al pasar de pantalla
+  musica.play().catch(() => {
+    // Si el navegador bloquea el autoplay de audio, el usuario podrá
+    // pulsar el icono de música manualmente para iniciarla.
+  });
+  btnMusica.classList.remove("silenciado");
+  btnMusica.classList.add("visible");
+
+  transicionABarrido(() => {
+    mostrarVista("config");
+  });
 });
- 
-// ====================== VIDEO DE ENTRADA (una sola vez, se queda en el último frame) ======================
-const videoLogo = document.getElementById("logoEntrada");
-const btnJugarEl = document.getElementById("btnJugar");
 
-if (videoLogo) {
-  videoLogo.loop = false;
-
-  videoLogo.addEventListener("ended", () => {
-    btnJugarEl.classList.add("visible");
-  });
-
-  // Fallback: si el navegador bloquea el autoplay y el vídeo nunca arranca,
-  // mostramos el botón igualmente tras 4 segundos para no dejar al usuario atascado
-  videoLogo.addEventListener("play", () => {
-    // se reproduce con normalidad, no hacemos nada aquí
-  });
-
-  setTimeout(() => {
-    if (btnJugarEl && !btnJugarEl.classList.contains("visible") && videoLogo.paused && videoLogo.currentTime === 0) {
-      btnJugarEl.classList.add("visible");
-    }
-  }, 4000);
-}
 // ====================== AÑADIR / QUITAR JUGADORES ======================
 let totalJugadores = 2;
 
@@ -600,6 +570,9 @@ function transicionABarrido(callback) {
  
  // ====================== ARRANQUE ======================
 if (estado) {
+  // Si ya había una partida guardada, saltamos directamente al menú de turno
+  // y mostramos el icono de música (porque ya no estamos en bienvenida).
+  btnMusica.classList.add("visible");
   irAMenuTurno();
 }
 </script>
