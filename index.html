@@ -290,17 +290,18 @@
   right: 0.4rem;
   top: 50%;
   transform: translateY(-50%);
-  width: 1.8rem;
-  height: 1.8rem;
+  width: 2.2rem;   /* Más grande para que sea fácil de tocar */
+  height: 2.2rem;  /* Más grande para que sea fácil de tocar */
   border-radius: 50%;
   background: #ff4757;
   color: #fff;
   border: none;
-  font-size: 1rem;
+  font-size: 1.2rem;
   line-height: 1;
   padding: 0;
   margin: 0;
   cursor: pointer;
+  z-index: 10; /* Asegura que no sea bloqueado por el input */
 }
 
 /* ---------- MAZOS CIRCULARES ---------- */
@@ -811,16 +812,22 @@ function crearCampoNombre(indice) {
   return wrap;
 }
 // Delegación de eventos para borrar jugadores
+// Delegación de eventos para borrar jugadores
 camposNombres.addEventListener("click", (e) => {
   const btn = e.target.closest(".btn-quitar-jugador");
   if (!btn) return;
-  const wrap = btn.closest(".campo-nombre-wrap");
+  
+  // ¡AQUÍ ESTABA EL ERROR! Ahora borraremos todo el bloque del jugador, no solo el nombre
+  const wrap = btn.closest(".jugador-config"); 
   if (!wrap) return;
 
   wrap.remove();
   totalJugadores--;
   actualizarBotonAgregar();
   renombrarPlaceholders();
+  
+  // ¡NUEVO! Liberamos los personajes si el jugador que hemos borrado tenía uno
+  actualizarDisponibilidadPersonajes();
 });
 
 function renombrarPlaceholders() {
