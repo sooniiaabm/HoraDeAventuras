@@ -740,26 +740,51 @@ document.getElementById("vista-bienvenida").addEventListener("click", () => {
 
 let totalJugadores = 2;
 
+const PERSONAJES = [
+  { id: "finn",       nombre: "Finn",           img: "personajes/finn.png" },
+  { id: "jake",       nombre: "Jake",           img: "personajes/jake.png" },
+  { id: "dulce",      nombre: "Dulce Princesa", img: "personajes/dulceprincesa.png" },
+  { id: "marceline",  nombre: "Marceline",      img: "personajes/marceline.png" },
+  { id: "rey-helado", nombre: "Rey Helado",     img: "personajes/reyhelado.png" },
+  { id: "bmo",        nombre: "BMO",            img: "personajes/bmo.png" }
+];
+
 function crearCampoNombre(indice) {
   const wrap = document.createElement("div");
-  wrap.className = "campo-nombre-wrap";
+  wrap.className = "jugador-config";
+
+  const inputWrap = document.createElement("div");
+  inputWrap.className = "campo-nombre-wrap";
 
   const input = document.createElement("input");
   input.placeholder = "Nombre jugador " + (indice + 1);
-
-  wrap.appendChild(input);
+  inputWrap.appendChild(input);
 
   if (indice >= 2) {
     const btnQuitar = document.createElement("button");
     btnQuitar.className = "btn-quitar-jugador";
     btnQuitar.textContent = "✕";
     btnQuitar.type = "button";
-    wrap.appendChild(btnQuitar);
+    inputWrap.appendChild(btnQuitar);
   }
+  wrap.appendChild(inputWrap);
 
+  const grid = document.createElement("div");
+  grid.className = "personajes-grid";
+  grid.dataset.indice = indice;
+
+  PERSONAJES.forEach(p => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "personaje-avatar";
+    btn.dataset.personaje = p.id;
+    btn.innerHTML = `<span class="icono-circular"><img src="${p.img}" alt="${p.nombre}"></span><span>${p.nombre}</span>`;
+    grid.appendChild(btn);
+  });
+
+  wrap.appendChild(grid);
   return wrap;
 }
-
 // Delegación de eventos para borrar jugadores
 camposNombres.addEventListener("click", (e) => {
   const btn = e.target.closest(".btn-quitar-jugador");
