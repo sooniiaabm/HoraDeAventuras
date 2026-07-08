@@ -24,10 +24,7 @@
   height: 100%;
   object-fit: cover;
 }
-.fondo-gif {
-  background-size: cover;
-  background-position: center;
-}
+
   .fondo-capa.visible { opacity: 1; }
   .vista { display: none; padding: 1.2rem; max-width: 480px; margin: 0 auto; min-height: 100vh; }
   .vista.activa { display: flex; flex-direction: column; }
@@ -96,11 +93,7 @@
   <button id="btnListo">Listo</button>
 </div>
 
-<video class="fondo-video" autoplay muted loop playsinline>
-  <source src="inicio/fondo.mp4" type="video/mp4">
-</video>
- 
-<div class="fondo-gif"></div>
+<video class="fondo-video" id="fondoVideo" autoplay muted loop playsinline></video>
 
 <audio id="musicaFondo" src="inicio/musica.mp3" loop></audio>
   
@@ -255,26 +248,25 @@ document.getElementById("btnReiniciarTodo").addEventListener("click", (e) => {
   }
 });
 
-// ====================== FONDO INICIO ======================
+// ====================== FONDO ALEATORIO SEGUN DISPOSITIVO ======================
+const VIDEOS_ESCRITORIO = ["inicio/fondo1.mp4", "inicio/fondo2.mp4", "inicio/fondo3.mp4"];
+const VIDEOS_MOVIL = ["inicio/fondo1-movil.mp4", "inicio/fondo2-movil.mp4",
+                      "inicio/fondo3-movil.mp4","inicio/fondo4-movil.mp4","inicio/fondo5-movil.mp4",
+                      "inicio/fondo6-movil.mp4"];
 
- function configurarFondo() {
-  const video = document.querySelector(".fondo-video");
-  const gif = document.querySelector(".fondo-gif");
+function elegirAleatorio(lista) {
+  return lista[Math.floor(Math.random() * lista.length)];
+}
 
-  if (esMovilVertical()) {
-    video.style.display = "none";
-    gif.style.display = "block";
-    gif.style.backgroundImage = "url('inicio/fondo-movil.gif')";  // ← aquí, con el prefijo
-  } else {
-    gif.style.display = "none";
-    video.style.display = "block";
-  }
+function configurarFondo() {
+  const video = document.getElementById("fondoVideo");
+  const lista = esMovilVertical() ? VIDEOS_MOVIL : VIDEOS_ESCRITORIO;
+  video.src = elegirAleatorio(lista);
 }
 
 configurarFondo();
- window.addEventListener("resize", configurarFondo);
-
-
+window.addEventListener("resize", configurarFondo);
+ 
 // ====================== MUSICA DE FONDO ======================
  
 document.body.addEventListener("click", function iniciarMusica() {
