@@ -13,13 +13,13 @@
     color: #f1f1f1;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
- .fondo-gif {
+.fondo-video {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background-image: url('fondo.gif');
-  background-size: cover;
-  background-position: center;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
   .fondo-capa.visible { opacity: 1; }
   .vista { display: none; padding: 1.2rem; max-width: 480px; margin: 0 auto; min-height: 100vh; }
@@ -90,7 +90,9 @@
 </div>
 
 <!-- VISTA MENU DE TURNO -->
- <div class="fondo-gif"></div>
+<video class="fondo-video" autoplay muted loop playsinline>
+  <source src="fondo.mp4" type="video/mp4">
+</video>
  
 <audio id="musicaFondo" src="musica.mp3" loop></audio>
   
