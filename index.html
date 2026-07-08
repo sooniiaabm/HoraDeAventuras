@@ -428,10 +428,14 @@ const camposNombres = document.getElementById("camposNombres");
 
 document.getElementById("btnListo").addEventListener("click", () => {
   const nombres = [];
-  for (let i = 1; i < totalJugadores; i++) {
-    const val = document.getElementById("nombre" + i).value.trim();
-    nombres.push(val || ("Jugador " + (i + 1)));
-  }
+  // Seleccionamos todos los inputs
+  const inputs = document.querySelectorAll("#camposNombres input");
+  
+  // Recorremos cada input directamente
+  inputs.forEach((input, index) => {
+    const val = input.value.trim();
+    nombres.push(val || ("Jugador " + (index + 1)));
+  });
 
   const jugadores = nombres.map((nombre, id) => ({ id, nombre }));
 
