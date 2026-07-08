@@ -528,6 +528,10 @@ function aplicarTemaSegunImagen(idVista, imagenSrc) {
   img.src = imagenSrc;
 }
 
+// Activa el tema automático (claro/oscuro) para la vista de configuración
+// según la imagen de fondo que le pongas. Cambia la ruta por la tuya real.
+aplicarTemaSegunImagen("vista-config", "config/tu-imagen.jpg");
+
 window.addEventListener("resize", () => {
   const nuevaOrientacion = esMovilVertical();
   if (nuevaOrientacion !== orientacionActual) {
