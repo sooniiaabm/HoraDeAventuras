@@ -428,7 +428,7 @@ const camposNombres = document.getElementById("camposNombres");
 
 document.getElementById("btnListo").addEventListener("click", () => {
   const nombres = [];
-  for (let i = 0; i < totalJugadores; i++) {
+  for (let i = 1; i < totalJugadores; i++) {
     const val = document.getElementById("nombre" + i).value.trim();
     nombres.push(val || ("Jugador " + (i + 1)));
   }
