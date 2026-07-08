@@ -681,22 +681,73 @@ function crearCampoNombre(indice) {
 
   wrap.appendChild(input);
 
+ Aquí tienes solo esa parte (gestión de los campos de jugador, con el borrado corregido):
+javascriptlet totalJugadores = 2;
+
+function crearCampoNombre(indice) {
+  const wrap = document.createElement("div");
+  wrap.className = "campo-nombre-wrap";
+
+  const input = document.createElement("input");
+  input.placeholder = "Nombre jugador " + (indice + 1);
+
+  wrap.appendChild(input);
+
   if (indice >= 2) {
     const btnQuitar = document.createElement("button");
     btnQuitar.className = "btn-quitar-jugador";
     btnQuitar.textContent = "✕";
     btnQuitar.type = "button";
-    btnQuitar.addEventListener("click", () => {
-      wrap.remove();
-      totalJugadores--;
-      actualizarBotonAgregar();
-      renombrarPlaceholders();
-    });
+    // El borrado se gestiona por delegación de eventos más abajo (ver
+    // camposNombres.addEventListener), así que aquí no hace falta listener.
     wrap.appendChild(btnQuitar);
   }
 
   return wrap;
 }
+
+// Delegación de eventos: un único listener en el contenedor detecta el clic
+// en CUALQUIER botón de borrar, presente o futuro, sin depender de ids ni
+// de que cada botón tenga su propio listener (más fiable, especialmente en móvil).
+camposNombres.addEventListener("click", (e) => {
+  const btn = e.target.closest(".btn-quitar-jugador");
+  if (!btn) return;
+  const wrap = btn.closest(".campo-nombre-wrap");
+  if (!wrap) return;
+
+  wrap.remove();
+  totalJugadores--;
+  actualizarBotonAgregar();
+  renombrarPlaceholders();
+});
+
+function renombrarPlaceholders() {
+  const campos = camposNombres.querySelectorAll(".campo-nombre-wrap input");
+  campos.forEach((input, i) => {
+    input.placeholder = "Nombre jugador " + (i + 1);
+  });
+}
+
+function actualizarBotonAgregar() {
+  const btnAgregar = document.getElementById("btnAgregarJugador");
+  btnAgregar.style.display = totalJugadores >= 6 ? "none" : "block";
+}
+
+function actualizarCamposNombres() {
+  camposNombres.innerHTML = "";
+  for (let i = 0; i < totalJugadores; i++) {
+    camposNombres.appendChild(crearCampoNombre(i));
+  }
+  actualizarBotonAgregar();
+}
+
+document.getElementById("btnAgregarJugador").addEventListener("click", () => {
+  if (totalJugadores >= 6) return;
+  totalJugadores++;
+  actualizarCamposNombres();
+});
+
+actualizarCamposNombres();
 
 function renombrarPlaceholders() {
   const campos = camposNombres.querySelectorAll(".campo-nombre-wrap input");
