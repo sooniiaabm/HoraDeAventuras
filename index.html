@@ -264,6 +264,10 @@ function configurarFondo() {
   video.src = elegirAleatorio(lista);
 }
 
+function esMovilVertical() {
+  return window.matchMedia("(orientation: portrait)").matches;
+}
+ 
 configurarFondo();
 window.addEventListener("resize", configurarFondo);
  
