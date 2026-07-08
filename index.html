@@ -13,6 +13,16 @@
     color: #f1f1f1;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
+ .fondo-capa {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 2.5s ease-in-out;
+  }
+  .fondo-capa.visible { opacity: 1; }
   .vista { display: none; padding: 1.2rem; max-width: 480px; margin: 0 auto; min-height: 100vh; }
   .vista.activa { display: flex; flex-direction: column; }
   h1 { font-size: 1.3rem; text-align: center; margin: 0 0 1.2rem; }
@@ -69,6 +79,8 @@
 </style>
 </head>
 <body>
+ <div class="fondo-capa" id="fondoA"></div>
+<div class="fondo-capa" id="fondoB"></div>
 
 <!-- VISTA CONFIGURACION -->
 <div class="vista activa" id="vista-config">
@@ -230,11 +242,41 @@ document.getElementById("btnReiniciarTodo").addEventListener("click", (e) => {
     location.reload();
   }
 });
+// ====================== FONDO CAMBIANTE ======================
+// Añade aquí las rutas de tus imágenes; puedes poner tantas como quieras.
+const FONDOS = ["fondo1.jpg", "fondo2.jpg", "fondo3.jpg"];
+const TIEMPO_ENTRE_CAMBIOS = 8000; // milisegundos (8000 = 8 segundos)
+ 
+let indiceFondo = 0;
+let capaVisible = document.getElementById("fondoA");
+let capaOculta = document.getElementById("fondoB");
 
+ if (FONDOS.length > 0) {
+  capaVisible.style.backgroundImage = "url('" + FONDOS[0] + "')";
+  capaVisible.classList.add("visible");
+}
+ 
+function cambiarFondo() {
+  if (FONDOS.length < 2) return;
+  indiceFondo = (indiceFondo + 1) % FONDOS.length;
+  capaOculta.style.backgroundImage = "url('" + FONDOS[indiceFondo] + "')";
+  capaOculta.classList.add("visible");
+  capaVisible.classList.remove("visible");
+  const temp = capaVisible;
+  capaVisible = capaOculta;
+  capaOculta = temp;
+}
+ 
+if (FONDOS.length > 1) {
+  setInterval(cambiarFondo, TIEMPO_ENTRE_CAMBIOS);
+}
+ 
 // ====================== ARRANQUE ======================
 if (estado) {
   irAMenuTurno();
 }
 </script>
 </body>
+
+ 
 </html>
