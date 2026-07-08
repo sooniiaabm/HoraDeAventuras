@@ -272,7 +272,15 @@ function configurarFondo() {
 
 
 configurarFondo();
-window.addEventListener("resize", configurarFondo);
+let orientacionActual = esMovilVertical();
+
+window.addEventListener("resize", () => {
+  const nuevaOrientacion = esMovilVertical();
+  if (nuevaOrientacion !== orientacionActual) {
+    orientacionActual = nuevaOrientacion;
+    configurarFondo();
+  }
+});
  
 // ====================== MUSICA DE FONDO ======================
  
