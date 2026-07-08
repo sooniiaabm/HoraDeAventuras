@@ -82,35 +82,37 @@
   .footer-link a { color: #666; font-size: 0.8rem; }
 
 /* ---------- BIENVENIDA ---------- */
-.logo-wrap {
-  width: 100%;
-  display: flex;
+#vista-bienvenida {
+  position: relative;
   justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 0;
   overflow: hidden;
 }
+
 #logoEntrada {
-  max-width: 320px;
-  width: 80%;
-  transform: translateX(-150%);
-  opacity: 0;
-  animation: entradaLogo 1s ease-out forwards;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
 }
-@keyframes entradaLogo {
-  0% { transform: translateX(-150%); opacity: 0; }
-  60% { opacity: 1; }
-  100% { transform: translateX(0); opacity: 1; }
-}
+
 .btn-jugar {
+  position: relative;
+  z-index: 1;
   max-width: 220px;
   font-size: 1.2rem;
   font-weight: 700;
   letter-spacing: 0.05em;
   opacity: 0;
-  /* la animación ya no empieza sola: la activamos por JS cuando el vídeo acabe */
-  transition: opacity 1s ease-in, transform 1s ease-in;
   transform: translateY(10px);
+  transition: opacity 1s ease-in, transform 1s ease-in;
   pointer-events: none;
 }
+
 .btn-jugar.visible {
   opacity: 1;
   transform: translateY(0);
@@ -285,12 +287,9 @@
   <img src="iconos/musica.png" alt="Música">
 </button>
 <div class="vista activa" id="vista-bienvenida">
-  <div class="logo-wrap">
-    <video id="logoEntrada" src="icono/logo.mp4" autoplay muted playsinline></video>
-  </div>
+  <video id="logoEntrada" src="icono/logo.mp4" autoplay muted playsinline></video>
   <button id="btnJugar" class="btn-jugar">Jugar</button>
 </div>
-
 
 <!-- VISTA CONFIGURACION -->
 <div class="vista" id="vista-config">
@@ -508,16 +507,24 @@ const videoLogo = document.getElementById("logoEntrada");
 const btnJugarEl = document.getElementById("btnJugar");
 
 if (videoLogo) {
-  videoLogo.loop = false; // aseguramos que NO haga bucle
+  videoLogo.loop = false;
 
   videoLogo.addEventListener("ended", () => {
-    // El vídeo se queda parado en el último frame de forma natural
-    // porque al no tener loop, el navegador no reinicia el video.
-    // Ahora hacemos aparecer el botón con fade-in
     btnJugarEl.classList.add("visible");
   });
+
+  // Fallback: si el navegador bloquea el autoplay y el vídeo nunca arranca,
+  // mostramos el botón igualmente tras 4 segundos para no dejar al usuario atascado
+  videoLogo.addEventListener("play", () => {
+    // se reproduce con normalidad, no hacemos nada aquí
+  });
+
+  setTimeout(() => {
+    if (btnJugarEl && !btnJugarEl.classList.contains("visible") && videoLogo.paused && videoLogo.currentTime === 0) {
+      btnJugarEl.classList.add("visible");
+    }
+  }, 4000);
 }
- 
 // ====================== AÑADIR / QUITAR JUGADORES ======================
 let totalJugadores = 2;
 
