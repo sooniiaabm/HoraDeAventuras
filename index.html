@@ -13,13 +13,20 @@
     color: #f1f1f1;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
-.fondo-video {
+ 
+.fondo-video, .fondo-gif {
   position: fixed;
   inset: 0;
   z-index: -1;
+}
+.fondo-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+.fondo-gif {
+  background-size: cover;
+  background-position: center;
 }
   .fondo-capa.visible { opacity: 1; }
   .vista { display: none; padding: 1.2rem; max-width: 480px; margin: 0 auto; min-height: 100vh; }
@@ -89,13 +96,15 @@
   <button id="btnListo">Listo</button>
 </div>
 
-<!-- VISTA MENU DE TURNO -->
 <video class="fondo-video" autoplay muted loop playsinline>
-  <source src="fondo.mp4" type="video/mp4">
+  <source src="inicio/fondo.mp4" type="video/mp4">
 </video>
  
-<audio id="musicaFondo" src="musica.mp3" loop></audio>
+<div class="fondo-gif"></div>
+
+<audio id="musicaFondo" src="inicio/musica.mp3" loop></audio>
   
+<!-- VISTA MENU DE TURNO -->
 <div class="vista" id="vista-menu">
   <h1>Turno de</h1>
   <div class="nombre-turno" id="nombreTurno"></div>
@@ -246,14 +255,32 @@ document.getElementById("btnReiniciarTodo").addEventListener("click", (e) => {
   }
 });
 
-// ====================== FONDO GIF inicio ======================
-const gif = esMovilVertical() ? 'fondo-movil.gif' : 'fondo-escritorio.gif';
-document.querySelector('.fondo-gif').style.backgroundImage = `url('${gif}')`;
+// ====================== FONDO INICIO ======================
+
+ function configurarFondo() {
+  const video = document.querySelector(".fondo-video");
+  const gif = document.querySelector(".fondo-gif");
+
+  if (esMovilVertical()) {
+    video.style.display = "none";
+    gif.style.display = "block";
+    gif.style.backgroundImage = "url('inicio/fondo-movil.gif')";  // ← aquí, con el prefijo
+  } else {
+    gif.style.display = "none";
+    video.style.display = "block";
+  }
+}
+
+configurarFondo();
+ window.addEventListener("resize", configurarFondo);
+
 
 // ====================== MUSICA DE FONDO ======================
+ 
 document.body.addEventListener("click", function iniciarMusica() {
   document.getElementById("musicaFondo").play();
 }, { once: true });
+
  
  // ====================== ARRANQUE ======================
 if (estado) {
