@@ -124,6 +124,7 @@
 }
 
 /* ---------- SELECTOR DE PERSONAJES ---------- */
+/* ---------- SELECTOR DE PERSONAJES ---------- */
 .jugador-config {
   margin-bottom: 1.4rem;
   padding-bottom: 1.2rem;
@@ -134,10 +135,27 @@
   display: flex;
   gap: 0.7rem;
   overflow-x: auto;
-  padding: 0.4rem 0.1rem 0.6rem;
-  scrollbar-width: none;
+  padding: 0.4rem 0.1rem 0.8rem; /* Un poco más de espacio por debajo para la barra */
+  
+  /* Estilos para Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
-.personajes-grid::-webkit-scrollbar { display: none; }
+
+/* Estilos de la barra para Chrome, Safari y Edge */
+.personajes-grid::-webkit-scrollbar {
+  height: 6px; /* Altura de la barra horizontal */
+}
+.personajes-grid::-webkit-scrollbar-track {
+  background: transparent; /* El carril por donde se mueve es transparente */
+}
+.personajes-grid::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2); /* Color blanco semitransparente disimulado */
+  border-radius: 10px; /* Bordes redondeaditos */
+}
+.personajes-grid::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4); /* Se ilumina un poquito al pasar el dedo o ratón */
+}
 
 .personaje-avatar {
   all: unset;
