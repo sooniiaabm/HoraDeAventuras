@@ -528,6 +528,536 @@
  
 <script>
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <link rel="icon" type="image/png" href="icon/icon.png.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hora de aventuras</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: #1a1a2e;
+    color: #f1f1f1;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+ 
+  .vista { display: none; padding: 1.2rem; max-width: 480px; margin: 0 auto; min-height: 100vh; }
+  .vista.activa { display: flex; flex-direction: column; }
+  h1 { font-size: 1.3rem; text-align: center; margin: 0 0 1.2rem; }
+  h2 { font-size: 1rem; color: #a29bfe; margin: 1.2rem 0 0.4rem; }
+
+  input, select {
+    width: 100%;
+    padding: 0.65rem;
+    border-radius: 10px;
+    border: 1px solid #444;
+    background: #2c2c54;
+    color: #fff;
+    font-size: 1rem;
+    margin-bottom: 0.6rem;
+  }
+  button {
+    background: #6c63ff;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.2rem;
+    border-radius: 12px;
+    font-size: 1rem;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+  button.secundario { background: transparent; border: 1px solid #6c63ff; }
+  button:active { transform: scale(0.98); }
+
+ 
+/* ---------- BIENVENIDA ---------- */
+/* Esta vista escapa del ancho máximo de 480px: ocupa TODA la pantalla
+   (position: fixed, inset 0) para poder usarse como fondo a pantalla completa
+   tanto en móvil como en escritorio. */
+#vista-bienvenida {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+
+  /* La imagen de fondo se controla por JS (configurarFondoBienvenida),
+     pero dejamos aquí los valores por defecto para que siempre cubra todo */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #1a1a2e; /* color de respaldo mientras carga la imagen */
+  transition: opacity 0.5s ease;
+}
+
+.texto-toca {
+  /* Centrado en el eje horizontal, y colocado en la mitad del primer
+     cuarto de pantalla empezando desde abajo (12.5% desde el borde inferior) */
+  position: absolute;
+  bottom: 12.5%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  animation: parpadeoToca 1.6s ease-in-out infinite;
+  pointer-events: none;
+  text-align: center;
+  white-space: nowrap;
+}
+
+@keyframes parpadeoToca {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+.logonube {
+  position: absolute;
+  top: 37.5%;
+  left: 50%;
+  width: 55%;
+  max-width: 320px;
+  z-index: 1;
+  pointer-events: none;
+  animation:
+    entradaNube 1.8s ease-out forwards,
+    flotarNube 4s ease-in-out 1.8s infinite;
+}
+
+@keyframes entradaNube {
+  0%   { transform: translate(-50%, -140vh); opacity: 0; }
+  55%  { opacity: 1; }
+  100% { transform: translate(-50%, 0); opacity: 1; }
+}
+
+@keyframes flotarNube {
+  0%, 100% { transform: translate(-50%, 0); }
+  50%      { transform: translate(-50%, -14px); }
+}
+
+/* ---------- CONFIGURACION ---------- */
+/* Igual que bienvenida: ocupa toda la pantalla para que el vídeo de fondo
+   cubra el 100%. El contenido real va dentro de .contenido-config, que sí
+   mantiene el ancho máximo de 480px y queda centrado por encima del vídeo. */
+#vista-config {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.fondo-video-config {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  background-color: #1a1a2e; /* color de respaldo mientras carga el vídeo */
+}
+
+.contenido-config {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 480px;
+  margin: auto; /* Al poner solo 'auto', se centra vertical y horizontalmente sin romper el scroll */
+  padding: 1.2rem;
+}
+/* Tema automático: se añade por JS según el brillo medio del fondo activo.
+   Por defecto (sin fondo, o fondo oscuro) se usan los colores actuales (claros sobre oscuro). */
+#vista-config.tema-claro h1 { color: #1a1a2e; }
+#vista-config.tema-claro input {
+  background: rgba(255,255,255,0.85);
+  color: #1a1a2e;
+  border-color: #bbb;
+}
+#vista-config.tema-claro input::placeholder { color: #555; }
+#vista-config.tema-claro button.secundario {
+  border-color: #1a1a2e;
+  color: #1a1a2e;
+}
+#vista-config.tema-claro .btn-quitar-jugador {
+  border: 2px solid #fff;
+}
+
+/* ---------- SELECTOR DE PERSONAJES ---------- */
+.jugador-config {
+  margin-bottom: 1.4rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.personajes-grid {
+  display: flex;
+  gap: 0.7rem;
+  overflow-x: auto;
+  padding: 0.4rem 0.1rem 0.8rem; /* Un poco más de espacio por debajo para la barra */
+  
+  /* Estilos para Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+/* Estilos de la barra para Chrome, Safari y Edge */
+.personajes-grid::-webkit-scrollbar {
+  height: 6px; /* Altura de la barra horizontal */
+}
+.personajes-grid::-webkit-scrollbar-track {
+  background: transparent; /* El carril por donde se mueve es transparente */
+}
+.personajes-grid::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2); /* Color blanco semitransparente disimulado */
+  border-radius: 10px; /* Bordes redondeaditos */
+}
+.personajes-grid::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4); /* Se ilumina un poquito al pasar el dedo o ratón */
+}
+
+.personaje-avatar {
+  all: unset;
+  flex: 0 0 auto;
+  width: 62px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.personaje-avatar .icono-circular {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid transparent;
+  background: #2c2c54;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.personaje-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.personaje-avatar span {
+  font-size: 0.68rem;
+  color: #ccc;
+  text-align: center;
+  line-height: 1.1;
+}
+
+.personaje-avatar:hover { opacity: 0.85; }
+
+.personaje-avatar.seleccionado {
+  opacity: 1;
+  transform: scale(1.08);
+}
+.personaje-avatar.seleccionado .icono-circular {
+  border-color: #6c63ff;
+}
+.personaje-avatar.seleccionado span { color: #fff; font-weight: 600; }
+
+.personaje-avatar.ocupado {
+  opacity: 0.25;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+ 
+.contenido-config {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 480px;
+  margin: auto;
+  /* Añadimos mucho más espacio (padding) abajo para engañar a iOS */
+  padding: 1.2rem 1.2rem 6rem 1.2rem; 
+}
+
+
+ /* ---------- CAMPOS NOMBRE ---------- */
+.campo-nombre-wrap {
+  position: relative;
+  margin-bottom: 0.6rem;
+}
+.campo-nombre-wrap input { margin-bottom: 0; padding-right: 2.5rem; }
+.btn-quitar-jugador {
+  position: absolute;
+  right: 0.4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.2rem;   /* Más grande para que sea fácil de tocar */
+  height: 2.2rem;  /* Más grande para que sea fácil de tocar */
+  border-radius: 50%;
+  background: #ff4757;
+  color: #fff;
+  border: none;
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  z-index: 10; /* Asegura que no sea bloqueado por el input */
+}
+ .btn-quitar-jugador:active {
+  transform: translateY(-50%) scale(0.92); 
+}
+
+ /* ----------MUSICA--------- */
+.btn-musica {
+  position: fixed !important;
+  top: 1rem;
+  right: 1rem;
+  z-index: 999;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.5);
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  overflow: hidden;
+
+  /* Oculto hasta que se pase de la pantalla de bienvenida */
+  display: none;
+}
+
+.btn-musica.visible { display: block; }
+
+.btn-musica img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Línea diagonal que aparece cuando está silenciado */
+.btn-musica::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 8%;
+  width: 84%;
+  height: 3px;
+  background: #ff4757;
+  transform: translateY(-50%) rotate(-45deg);
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.btn-musica.silenciado::after {
+  opacity: 1;
+}
+
+ 
+ /* ---------- MAZOS ---------- */
+ 
+  .nombre-turno { text-align: center; font-size: 1.4rem; font-weight: 600; margin: 0.6rem 0 1.2rem; }
+
+
+  .mazo-boton {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.9rem; margin-bottom: 0.6rem; border-radius: 14px;
+    color: white; font-weight: 600; font-size: 1rem; cursor: pointer; border: none;
+    width: 100%; text-align: left;
+  }
+  .mazo-prismo { background: linear-gradient(135deg,#8e6bff,#4834d4); }
+  .mazo-lich { background: linear-gradient(135deg,#2c5f4a,#0d2b21); }
+  .mazo-caracol { background: linear-gradient(135deg,#20a89e,#0f5a54); }
+  .mazo-boton .icono { font-size: 1.4rem; }
+  .mazo-boton .sub { font-weight: 400; font-size: 0.75rem; opacity: 0.85; display: block; }
+
+  .carta-juego {
+    background: #f4f1ff; color: #2c2c54; border-radius: 16px;
+    padding: 1.5rem; text-align: center; margin: 1rem 0; min-height: 140px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem;
+  }
+  .carta-juego .tipo { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #6c63ff; font-weight: 700; }
+  .carta-juego .texto { font-size: 1.05rem; font-weight: 500; }
+
+  .footer-link { text-align: center; margin-top: 1.5rem; }
+  .footer-link a { color: #666; font-size: 0.8rem; }
+
+/* ---------- MAZOS CIRCULARES ---------- */
+.mazos-contenedor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  align-items: center;
+}
+.mazo-circular {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 320px;
+  padding: 0.5rem;
+  border-radius: 100px;
+  border: none;
+  cursor: pointer;
+  color: white;
+  text-align: left;
+}
+.mazo-circular .icono-circular {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.mazo-circular .icono-circular img {
+  width: 70%;
+  height: 70%;
+  object-fit: contain;
+}
+.mazo-circular .texto-mazo { display: flex; flex-direction: column; }
+.mazo-circular .texto-mazo .nombre-mazo { font-weight: 700; font-size: 1rem; }
+.mazo-circular .texto-mazo .sub { font-weight: 400; font-size: 0.75rem; opacity: 0.85; }
+
+.mazo-prismo { background: linear-gradient(135deg,#8e6bff,#4834d4); }
+.mazo-glitch { background: linear-gradient(135deg,#2c5f4a,#0d2b21); }
+.mazo-caracol { background: linear-gradient(135deg,#20a89e,#0f5a54); }
+
+/* Móvil: solo icono circular, en columna, sin texto */
+@media (max-width: 600px) {
+  .mazo-circular { justify-content: center; max-width: 100px; padding: 0; border-radius: 50%; }
+  .mazo-circular .texto-mazo { display: none; }
+  .mazo-circular .icono-circular { width: 80px; height: 80px; }
+  .mazos-contenedor { flex-direction: column; }
+}
+
+/* Escritorio: también en columna, iconos circulares, sin texto (según lo pedido) */
+@media (min-width: 601px) {
+  .mazos-contenedor { flex-direction: column; align-items: center; }
+  .mazo-circular { justify-content: center; max-width: 110px; padding: 0; border-radius: 50%; }
+  .mazo-circular .texto-mazo { display: none; }
+  .mazo-circular .icono-circular { width: 90px; height: 90px; }
+}
+
+ 
+ 
+/* ---------- BARRIDO NEGRO ---------- */
+.barrido-negro {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 2000;
+  transform: scaleX(0);
+  transform-origin: left;
+  pointer-events: none;
+}
+.barrido-negro.entrando {
+  animation: barridoEntra 0.4s ease-in forwards;
+}
+.barrido-negro.saliendo {
+  transform-origin: right;
+  animation: barridoSale 0.4s ease-in forwards;
+}
+@keyframes barridoEntra {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes barridoSale {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+
+</style>
+</head>
+
+ //________________________________________________________________________________________//
+ 
+<body>
+
+
+<!-- VISTA BIENVENIDA -->
+<div class="vista activa" id="vista-bienvenida">
+  <img src="bienvenida/logonube.png" alt="Logo" class="logo-nube">
+  <div class="texto-toca">Toca la pantalla</div>
+</div>
+
+<!-- VISTA CONFIGURACION -->
+<div class="vista" id="vista-config">
+  <video class="fondo-video-config" id="fondoVideoConfig" autoplay muted loop playsinline></video>
+  <div class="contenido-config">
+    <h1>¿Quién va a jugar?</h1>
+    <div id="camposNombres"></div>
+    <button id="btnAgregarJugador" class="secundario">Añadir jugador</button>
+    <button id="btnListo">Listo</button>
+  </div>
+</div>
+
+<!-- VISTA MUSICA -->
+<audio id="musicaFondo" src="musica/musica.mp3" loop></audio>
+
+<button class="btn-musica" id="btnMusica">
+  <img src="icono/musica.gif" alt="Música">
+</button>
+  
+<!-- VISTA MENU DE TURNO -->
+<div class="vista" id="vista-menu">
+  <h1>Turno de</h1>
+  <div class="nombre-turno" id="nombreTurno"></div>
+
+ <!-- VISTA MAZOS -->
+ <div class="mazos-contenedor">
+  <button class="mazo-circular mazo-prismo" data-mazo="ventaja">
+    <span class="icono-circular"><img src="iconos/prismo.png" alt="Prismo"></span>
+    <span class="texto-mazo"><span class="nombre-mazo">Prismo</span><span class="sub">Ventaja</span></span>
+  </button>
+  <button class="mazo-circular mazo-lich" data-mazo="desventaja">
+    <span class="icono-circular"><img src="iconos/lich.png" alt="Lich"></span>
+    <span class="texto-mazo"><span class="nombre-mazo">Lich</span><span class="sub">Desventaja</span></span>
+  </button>
+  <button class="mazo-circular mazo-caracol" data-mazo="caracol">
+    <span class="icono-circular"><img src="iconos/caracol.png" alt="Caracol"></span>
+    <span class="texto-mazo"><span class="nombre-mazo">Caracol</span><span class="sub">Ventaja o desventaja</span></span>
+  </button>
+</div>
+
+  <div class="footer-link"><a href="#" id="btnReiniciarTodo">Reiniciar partida</a></div>
+</div>
+
+<!-- VISTA CARTA SACADA -->
+<div class="vista" id="vista-carta">
+  <h1 id="tituloCartaVista">Carta</h1>
+  <div class="carta-juego" id="cartaJuego">
+    <div class="tipo" id="tipoCartaJuego"></div>
+    <div class="texto" id="textoCartaJuego"></div>
+  </div>
+  <button id="btnSiguienteTurno">Siguiente jugador</button>
+</div>
+
+ 
+<!-- BARRIDO NEGRO -->
+<div class="barrido-negro" id="barridoNegro"></div>
+ 
+ //________________________________________________________________________________________//
+ 
+<script>
+
 //GENERAL__________________________________________________________________________________________________________
  
  // ====================== DETECCION DE DISPOSITIVO ======================
@@ -1013,6 +1543,11 @@ if (estado) {
   btnMusica.classList.add("visible");
   irAMenuTurno();
 }
+</script>
+</body>
+
+ 
+</html>
 </script>
 </body>
 
