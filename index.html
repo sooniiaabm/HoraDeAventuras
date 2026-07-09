@@ -747,13 +747,13 @@ btnMusica.addEventListener("click", () => {
 // Lógica de Jugadores
 let totalJugadores = 2;
 const PERSONAJES = [
-  {id:"finn", nombre:"Finn", img:"personajes/finn.png", color:"#0a2c52", fondoTurnoPC:"fondos-turno/pc/finn.jpg", fondoTurnoMovil:"fondos-turno/movil/finn.jpg"},
-  {id:"jake", nombre:"Jake", img:"personajes/jake.png", color:"#5c3a10", fondoTurnoPC:"fondos-turno/pc/jake.jpg", fondoTurnoMovil:"fondos-turno/movil/jake.jpg"},
-  {id:"dulce", nombre:"Princesa chicle", img:"personajes/dulceprincesa.png", color:"#6b1f4d", fondoTurnoPC:"fondos-turno/pc/princesachicle.jpg", fondoTurnoMovil:"fondos-turno/movil/princesachicle.jpg"},
+  {id:"finn", nombre:"Finn", img:"personajes/finn.png", color:"##9DD0FF", fondoTurnoPC:"fondos-turno/pc/finn.jpg", fondoTurnoMovil:"fondos-turno/movil/finn.jpg"},
+  {id:"jake", nombre:"Jake", img:"personajes/jake.png", color:"#FFEA9D", fondoTurnoPC:"fondos-turno/pc/jake.jpg", fondoTurnoMovil:"fondos-turno/movil/jake.jpg"},
+  {id:"dulce", nombre:"Princesa chicle", img:"personajes/dulceprincesa.png", color:"#FF9DE2", fondoTurnoPC:"fondos-turno/pc/princesachicle.jpg", fondoTurnoMovil:"fondos-turno/movil/princesachicle.jpg"},
   {id:"marceline", nombre:"Marceline", img:"personajes/marceline.png", color:"#1a0f2e", fondoTurnoPC:"fondos-turno/pc/marceline.jpg", fondoTurnoMovil:"fondos-turno/movil/marceline.jpg"},
   {id:"reyhielo", nombre:"Rey Hielo", img:"personajes/reyhielo.png", color:"#0d3a52", fondoTurnoPC:"fondos-turno/pc/reyhielo.jpg", fondoTurnoMovil:"fondos-turno/movil/reyhielo.jpg"},
-  {id:"bmo", nombre:"BMO", img:"personajes/bmo.png", color:"#0f4a2c", fondoTurnoPC:"fondos-turno/pc/bmo.jpg", fondoTurnoMovil:"fondos-turno/movil/bmo.jpg"},
-  {id:"princesallama", nombre:"Princesa Llama", img:"personajes/princesallama.png", color:"#6b1f0d", fondoTurnoPC:"fondos-turno/pc/princesallama.jpg", fondoTurnoMovil:"fondos-turno/movil/princesallama.jpg"},
+  {id:"bmo", nombre:"BMO", img:"personajes/bmo.png", color:"#9DFFEFc", fondoTurnoPC:"fondos-turno/pc/bmo.jpg", fondoTurnoMovil:"fondos-turno/movil/bmo.jpg"},
+  {id:"princesallama", nombre:"Princesa Llama", img:"personajes/princesallama.png", color:"#FFBE9D", fondoTurnoPC:"fondos-turno/pc/princesallama.jpg", fondoTurnoMovil:"fondos-turno/movil/princesallama.jpg"},
 ];
 
  function fondoTurnoDe(personaje) {
@@ -873,28 +873,30 @@ document.getElementById("btnSiguienteTurno").addEventListener("click", () => {
 // =============================================================================
 function transicionABarrido(callback, imagenBarrido) {
   const barrido = document.getElementById("barridoNegro");
-  
-  // Si hay imagen, la aplicamos. Si no, dejamos el negro.
+
+  // Reseteamos primero para asegurarnos de que el navegador "ve" el cambio
+  barrido.classList.remove("entrando", "saliendo");
+  void barrido.offsetWidth; // fuerza reflow → evita que se salte la animación
+
   if (imagenBarrido) {
     barrido.style.backgroundImage = `url("${imagenBarrido}")`;
-    barrido.style.backgroundColor = "transparent"; // Quitamos el negro si hay imagen
+    barrido.style.backgroundColor = "transparent";
   } else {
     barrido.style.backgroundImage = "none";
-    barrido.style.backgroundColor = "#000"; // Ponemos negro por defecto
+    barrido.style.backgroundColor = "#000";
   }
-  
+
   barrido.classList.add("entrando");
-  
-  // El tiempo de espera es 400ms (igual que la animación CSS)
+
   setTimeout(() => {
     callback();
     barrido.classList.remove("entrando");
+    void barrido.offsetWidth; // fuerza reflow otra vez
     barrido.classList.add("saliendo");
-    
-    // Limpiamos al terminar
+
     setTimeout(() => {
       barrido.classList.remove("saliendo");
-      barrido.style.backgroundImage = "none"; // Limpiamos para la próxima
+      barrido.style.backgroundImage = "none";
     }, 400);
   }, 400);
 }
