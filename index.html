@@ -104,7 +104,7 @@
   pointer-events: none;
   animation:
     entradaNube 1s ease-out forwards,
-    flotarNube 4s ease-in-out 1.8s infinite;
+    flotarNube 4s ease-in-out 1s infinite;
 }
 
 @keyframes entradaNube {
@@ -427,10 +427,7 @@
 
  /* ---------- PERSONALIZACION POR PERSONAJE ---------- */
 #vista-menu {
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  transition: background-image 0.4s ease;
+  transition: background-color 0.4s ease;
 }
  
 .avatar-turno {
@@ -499,12 +496,16 @@
 .barrido-negro {
   position: fixed;
   inset: 0;
-  background: #000;
+  background-color: #000;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   z-index: 2000;
   transform: scaleX(0);
   transform-origin: left;
   pointer-events: none;
 }
+ 
 .barrido-negro.entrando {
   animation: barridoEntra 0.4s ease-in forwards;
 }
@@ -695,7 +696,10 @@ function finalizarConfiguracion() {
     poolCaracol: mezclar([...VENTAJAS.map(t=>({texto:t,tipo:"Ventaja"})), ...DESVENTAJAS.map(t=>({texto:t,tipo:"Desventaja"}))])
   };
   guardarEstado();
-  transicionABarrido(() => { irAMenuTurno(); });
+
+  const primerJugador = estado.jugadores[0];
+  const personajePrimero = PERSONAJES.find(p => p.id === primerJugador.personaje);
+  transicionABarrido(() => { irAMenuTurno(); }, personajePrimero ? personajePrimero.fondoTurno : null);
 }
 
 btnListo.addEventListener("click", finalizarConfiguracion);
@@ -741,18 +745,18 @@ btnMusica.addEventListener("click", () => {
 // Lógica de Jugadores
 let totalJugadores = 2;
 const PERSONAJES = [
-  {id:"finn", nombre:"Finn", img:"personajes/finn.png", fondo:"fondos-turno/finn.jpg"},
-  {id:"jake", nombre:"Jake", img:"personajes/jake.png", fondo:"fondos-turno/jake.jpg"},
-  {id:"dulce", nombre:"Princesa chicle", img:"personajes/dulceprincesa.png", fondo:"fondos-turno/dulceprincesa.jpg"},
-  {id:"marceline", nombre:"Marceline", img:"personajes/marceline.png", fondo:"fondos-turno/marceline.jpg"},
-  {id:"reyhielo", nombre:"Rey Hielo", img:"personajes/reyhielo.png", fondo:"fondos-turno/reyhielo.jpg"},
-  {id:"bmo", nombre:"BMO", img:"personajes/bmo.png", fondo:"fondos-turno/bmo.jpg"},
-  {id:"princesallama", nombre:"Princesa Llama", img:"personajes/princesallama.png", fondo:"fondos-turno/princesallama.jpg"},
-  {id:"trompi", nombre:"Trompi", img:"personajes/trompi.png", fondo:"fondos-turno/trompi.jpg"},
-  {id:"gunter", nombre:"Gunter", img:"personajes/gunter.png", fondo:"fondos-turno/gunter.jpg"},
-  {id:"menta", nombre:"Menta", img:"personajes/menta.png", fondo:"fondos-turno/menta.jpg"},
-  {id:"ladyarcoiris", nombre:"Lady arcoiris", img:"personajes/ladyarcoiris.png", fondo:"fondos-turno/ladyarcoiris.jpg"},
-  {id:"princesabultos", nombre:"Princesa bultos", img:"personajes/princesabultos.png", fondo:"fondos-turno/princesabultos.jpg"}
+  {id:"finn", nombre:"Finn", img:"personajes/finn.png", color:"#0a2c52", fondoTurno:"fondos-turno/finn.jpg"},
+  {id:"jake", nombre:"Jake", img:"personajes/jake.png", color:"#5c3a10", fondoTurno:"fondos-turno/jake.jpg"},
+  {id:"dulce", nombre:"Princesa chicle", img:"personajes/dulceprincesa.png", color:"#6b1f4d", fondoTurno:"fondos-turno/dulceprincesa.jpg"},
+  {id:"marceline", nombre:"Marceline", img:"personajes/marceline.png", color:"#1a0f2e", fondoTurno:"fondos-turno/marceline.jpg"},
+  {id:"reyhielo", nombre:"Rey Hielo", img:"personajes/reyhielo.png", color:"#0d3a52", fondoTurno:"fondos-turno/reyhielo.jpg"},
+  {id:"bmo", nombre:"BMO", img:"personajes/bmo.png", color:"#0f4a2c", fondoTurno:"fondos-turno/bmo.jpg"},
+  {id:"princesallama", nombre:"Princesa Llama", img:"personajes/princesallama.png", color:"#6b1f0d", fondoTurno:"fondos-turno/princesallama.jpg"},
+  {id:"trompi", nombre:"Trompi", img:"personajes/trompi.png", color:"#3c2f6b", fondoTurno:"fondos-turno/trompi.jpg"},
+  {id:"gunter", nombre:"Gunter", img:"personajes/gunter.png", color:"#15151f", fondoTurno:"fondos-turno/gunter.jpg"},
+  {id:"menta", nombre:"Menta", img:"personajes/menta.png", color:"#0f4a42", fondoTurno:"fondos-turno/menta.jpg"},
+  {id:"ladyarcoiris", nombre:"Lady arcoiris", img:"personajes/ladyarcoiris.png", color:"#4d1f6b", fondoTurno:"fondos-turno/ladyarcoiris.jpg"},
+  {id:"princesabultos", nombre:"Princesa bultos", img:"personajes/princesabultos.png", color:"#3a4a0f", fondoTurno:"fondos-turno/princesabultos.jpg"}
 ];
  
 function crearCampoNombre(indice) {
@@ -817,11 +821,11 @@ function actualizarAvatarTurno(jugador) {
   if (personaje) {
     avatarImg.src = personaje.img;
     avatarImg.alt = personaje.nombre;
-    vistaMenu.style.backgroundImage = `url("${personaje.fondo}")`;
+    vistaMenu.style.backgroundColor = personaje.color;
   } else {
     avatarImg.src = "";
     avatarImg.alt = "";
-    vistaMenu.style.backgroundImage = "";
+    vistaMenu.style.backgroundColor = "";
   }
 }
 
@@ -854,16 +858,27 @@ function sacarCarta(mazo) {
   guardarEstado();
 }
 
-document.getElementById("btnSiguienteTurno").addEventListener("click", () => { estado.turnoIndex++; guardarEstado(); irAMenuTurno(); });
-document.getElementById("btnReiniciarTodo").addEventListener("click", (e) => { e.preventDefault(); if (confirm("¿Reiniciar?")) { localStorage.removeItem("estadoJuegoTurnos"); location.reload(); } });
+document.getElementById("btnSiguienteTurno").addEventListener("click", () => {
+  estado.turnoIndex++;
+  guardarEstado();
+  const jugadorSiguiente = estado.jugadores[estado.turnoIndex % estado.jugadores.length];
+  const personajeSiguiente = PERSONAJES.find(p => p.id === jugadorSiguiente.personaje);
+  transicionABarrido(() => { irAMenuTurno(); }, personajeSiguiente ? personajeSiguiente.fondoTurno : null);
+});document.getElementById("btnReiniciarTodo").addEventListener("click", (e) => { e.preventDefault(); if (confirm("¿Reiniciar?")) { localStorage.removeItem("estadoJuegoTurnos"); location.reload(); } });
 
 // =============================================================================
 // 5. TRANSICIONES (Barrido negro)
 // =============================================================================
-function transicionABarrido(callback) {
+function transicionABarrido(callback, imagenBarrido) {
   const barrido = document.getElementById("barridoNegro");
+  barrido.style.backgroundImage = imagenBarrido ? `url("${imagenBarrido}")` : "";
   barrido.classList.add("entrando");
-  setTimeout(() => { callback(); barrido.classList.remove("entrando"); barrido.classList.add("saliendo"); setTimeout(() => barrido.classList.remove("saliendo"), 400); }, 400);
+  setTimeout(() => {
+    callback();
+    barrido.classList.remove("entrando");
+    barrido.classList.add("saliendo");
+    setTimeout(() => barrido.classList.remove("saliendo"), 400);
+  }, 400);
 }
 </script>
 </body>
