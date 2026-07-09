@@ -682,10 +682,10 @@ function finalizarConfiguracion() {
   };
   guardarEstado();
 
-  const primerJugador = estado.jugadores[0];
+const primerJugador = estado.jugadores[0];
   const personajePrimero = PERSONAJES.find(p => p.id === primerJugador.personaje);
-  transicionABarrido(() => { irAMenuTurno(); }, fondoTurnoDe(personajePrimero));
-}
+  transicionABarrido(() => { irAMenuTurno(); }, personajePrimero ? personajePrimero.color : null);
+ 
 
 btnListo.addEventListener("click", finalizarConfiguracion);
 btnListo.addEventListener("touchstart", (e) => { e.preventDefault(); finalizarConfiguracion(); }, { passive: false });
@@ -730,8 +730,7 @@ btnMusica.addEventListener("click", () => {
 // Lógica de Jugadores
 let totalJugadores = 2;
 const PERSONAJES = [
-  {id:"finn", nombre:"Finn", img:"personajes/finn.png", color:"##9DD0FF", fondoTurnoPC:"fondos-turno/pc/finn.jpg", fondoTurnoMovil:"fondos-turno/movil/finn.jpg"},
-  {id:"jake", nombre:"Jake", img:"personajes/jake.png", color:"#FFEA9D", fondoTurnoPC:"fondos-turno/pc/jake.jpg", fondoTurnoMovil:"fondos-turno/movil/jake.jpg"},
+  {id:"finn", nombre:"Finn", img:"personajes/finn.png", color:"#9DD0FF", fondoTurnoPC:"fondos-turno/pc/finn.jpg", fondoTurnoMovil:"fondos-turno/movil/finn.jpg"},  {id:"jake", nombre:"Jake", img:"personajes/jake.png", color:"#FFEA9D", fondoTurnoPC:"fondos-turno/pc/jake.jpg", fondoTurnoMovil:"fondos-turno/movil/jake.jpg"},
   {id:"dulce", nombre:"Princesa chicle", img:"personajes/dulceprincesa.png", color:"#FF9DE2", fondoTurnoPC:"fondos-turno/pc/princesachicle.jpg", fondoTurnoMovil:"fondos-turno/movil/princesachicle.jpg"},
   {id:"marceline", nombre:"Marceline", img:"personajes/marceline.png", color:"#1a0f2e", fondoTurnoPC:"fondos-turno/pc/marceline.jpg", fondoTurnoMovil:"fondos-turno/movil/marceline.jpg"},
   {id:"reyhielo", nombre:"Rey Hielo", img:"personajes/reyhielo.png", color:"#0d3a52", fondoTurnoPC:"fondos-turno/pc/reyhielo.jpg", fondoTurnoMovil:"fondos-turno/movil/reyhielo.jpg"},
@@ -856,8 +855,10 @@ document.getElementById("btnSiguienteTurno").addEventListener("click", () => {
   guardarEstado();
   const jugadorSiguiente = estado.jugadores[estado.turnoIndex % estado.jugadores.length];
   const personajeSiguiente = PERSONAJES.find(p => p.id === jugadorSiguiente.personaje);
-  transicionABarrido(() => { irAMenuTurno(); }, fondoTurnoDe(personajeSiguiente));
-});document.getElementById("btnReiniciarTodo").addEventListener("click", (e) => { e.preventDefault(); if (confirm("¿Reiniciar?")) { localStorage.removeItem("estadoJuegoTurnos"); location.reload(); } });
+  transicionABarrido(() => { irAMenuTurno(); }, personajeSiguiente ? personajeSiguiente.color : null);
+});
+  
+ document.getElementById("btnReiniciarTodo").addEventListener("click", (e) => { e.preventDefault(); if (confirm("¿Reiniciar?")) { localStorage.removeItem("estadoJuegoTurnos"); location.reload(); } });
 
   document.getElementById("mazosContenedor").addEventListener("click", (e) => {
   const btn = e.target.closest(".mazo-circular");
@@ -869,20 +870,15 @@ document.getElementById("btnSiguienteTurno").addEventListener("click", () => {
 // =============================================================================
 // 5. TRANSICIONES (Barrido negro) - CÓDIGO CORREGIDO
 // =============================================================================
-function transicionABarrido(callback, imagenBarrido) {
+function transicionABarrido(callback, colorBarrido) {
   const barrido = document.getElementById("barridoNegro");
 
   // Limpiamos clases antes de empezar
   barrido.classList.remove("entrando", "saliendo");
   void barrido.offsetWidth; // Truco técnico para reiniciar la animación
 
-  if (imagenBarrido) {
-    barrido.style.backgroundImage = `url("${imagenBarrido}")`;
-    barrido.style.backgroundColor = "transparent";
-  } else {
-    barrido.style.backgroundImage = "none";
-    barrido.style.backgroundColor = "#000";
-  }
+  barrido.style.backgroundImage = "none";
+  barrido.style.backgroundColor = colorBarrido || "#000";
 
   barrido.classList.add("entrando");
 
@@ -891,14 +887,15 @@ function transicionABarrido(callback, imagenBarrido) {
     callback();
     barrido.classList.remove("entrando");
     barrido.classList.add("saliendo");
-    
+
     // Al terminar el barrido de salida, limpiamos
     setTimeout(() => {
       barrido.classList.remove("saliendo");
-      barrido.style.backgroundImage = "none";
     }, 400);
   }, 400);
 }
+
+ 
 </script>
 </body>
 
