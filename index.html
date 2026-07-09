@@ -682,14 +682,16 @@ function finalizarConfiguracion() {
   };
   guardarEstado();
 
-const primerJugador = estado.jugadores[0];
+  const primerJugador = estado.jugadores[0];
   const personajePrimero = PERSONAJES.find(p => p.id === primerJugador.personaje);
+  
+  // Aquí faltaba cerrar el paréntesis de transicionABarrido y el de la función
   transicionABarrido(() => { irAMenuTurno(); }, personajePrimero ? personajePrimero.color : null);
- 
+} // <--- ESTA LLAVE FALTABA Y CERRABA LA FUNCIÓN
 
+// Ahora sí, fuera de la función, añadimos los eventos:
 btnListo.addEventListener("click", finalizarConfiguracion);
 btnListo.addEventListener("touchstart", (e) => { e.preventDefault(); finalizarConfiguracion(); }, { passive: false });
-
 // Gestión de Temas y Vídeos de fondo
 const VIDEOS_CONFIG_ESCRITORIO = ["iniciopc/fondopc.mp4"];
 const VIDEOS_CONFIG_MOVIL = ["iniciomovil/fondo1-movil.mp4.mp4", "iniciomovil/fondo2-movil.mp4.mp4", "iniciomovil/fondo3-movil.mp4.mp4", "iniciomovil/fondo4-movil.mp4.mp4", "iniciomovil/fondo5-movil.mp4.mp4", "iniciomovil/fondo6-movil.mp4.mp4"];
