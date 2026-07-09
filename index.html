@@ -496,9 +496,10 @@
 .barrido-negro {
   position: fixed;
   inset: 0;
-  background-color: #000;
-  background-size: cover;
-  background-position: center;
+  /* Eliminamos background-color: #000; para que no se vea negro sólido */
+  background-color: #000; 
+  background-size: cover;      /* Asegura que la imagen cubra toda la pantalla */
+  background-position: center; /* Centra la imagen */
   background-repeat: no-repeat;
   z-index: 2000;
   transform: scaleX(0);
@@ -871,13 +872,29 @@ document.getElementById("btnSiguienteTurno").addEventListener("click", () => {
 // =============================================================================
 function transicionABarrido(callback, imagenBarrido) {
   const barrido = document.getElementById("barridoNegro");
-  barrido.style.backgroundImage = imagenBarrido ? `url("${imagenBarrido}")` : "";
+  
+  // Si hay imagen, la aplicamos. Si no, dejamos el negro.
+  if (imagenBarrido) {
+    barrido.style.backgroundImage = `url("${imagenBarrido}")`;
+    barrido.style.backgroundColor = "transparent"; // Quitamos el negro si hay imagen
+  } else {
+    barrido.style.backgroundImage = "none";
+    barrido.style.backgroundColor = "#000"; // Ponemos negro por defecto
+  }
+  
   barrido.classList.add("entrando");
+  
+  // El tiempo de espera es 400ms (igual que la animación CSS)
   setTimeout(() => {
     callback();
     barrido.classList.remove("entrando");
     barrido.classList.add("saliendo");
-    setTimeout(() => barrido.classList.remove("saliendo"), 400);
+    
+    // Limpiamos al terminar
+    setTimeout(() => {
+      barrido.classList.remove("saliendo");
+      barrido.style.backgroundImage = "none"; // Limpiamos para la próxima
+    }, 400);
   }, 400);
 }
 </script>
