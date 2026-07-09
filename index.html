@@ -15,16 +15,6 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
  
-.contenido-config {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  max-width: 480px;
-  margin: auto;
-  /* Añadimos mucho más espacio (padding) abajo para engañar a iOS */
-  padding: 1.2rem 1.2rem 6rem 1.2rem; 
-}
- 
   .vista { display: none; padding: 1.2rem; max-width: 480px; margin: 0 auto; min-height: 100vh; }
   .vista.activa { display: flex; flex-direction: column; }
   h1 { font-size: 1.3rem; text-align: center; margin: 0 0 1.2rem; }
@@ -54,30 +44,79 @@
   button.secundario { background: transparent; border: 1px solid #6c63ff; }
   button:active { transform: scale(0.98); }
 
-  .nombre-turno { text-align: center; font-size: 1.4rem; font-weight: 600; margin: 0.6rem 0 1.2rem; }
+ 
+/* ---------- BIENVENIDA ---------- */
+/* Esta vista escapa del ancho máximo de 480px: ocupa TODA la pantalla
+   (position: fixed, inset 0) para poder usarse como fondo a pantalla completa
+   tanto en móvil como en escritorio. */
+#vista-bienvenida {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
 
-  .mazo-boton {
-    display: flex; align-items: center; gap: 0.6rem;
-    padding: 0.9rem; margin-bottom: 0.6rem; border-radius: 14px;
-    color: white; font-weight: 600; font-size: 1rem; cursor: pointer; border: none;
-    width: 100%; text-align: left;
-  }
-  .mazo-prismo { background: linear-gradient(135deg,#8e6bff,#4834d4); }
-  .mazo-lich { background: linear-gradient(135deg,#2c5f4a,#0d2b21); }
-  .mazo-caracol { background: linear-gradient(135deg,#20a89e,#0f5a54); }
-  .mazo-boton .icono { font-size: 1.4rem; }
-  .mazo-boton .sub { font-weight: 400; font-size: 0.75rem; opacity: 0.85; display: block; }
+  /* La imagen de fondo se controla por JS (configurarFondoBienvenida),
+     pero dejamos aquí los valores por defecto para que siempre cubra todo */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #1a1a2e; /* color de respaldo mientras carga la imagen */
+  transition: opacity 0.5s ease;
+}
 
-  .carta-juego {
-    background: #f4f1ff; color: #2c2c54; border-radius: 16px;
-    padding: 1.5rem; text-align: center; margin: 1rem 0; min-height: 140px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem;
-  }
-  .carta-juego .tipo { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #6c63ff; font-weight: 700; }
-  .carta-juego .texto { font-size: 1.05rem; font-weight: 500; }
+.texto-toca {
+  /* Centrado en el eje horizontal, y colocado en la mitad del primer
+     cuarto de pantalla empezando desde abajo (12.5% desde el borde inferior) */
+  position: absolute;
+  bottom: 12.5%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  animation: parpadeoToca 1.6s ease-in-out infinite;
+  pointer-events: none;
+  text-align: center;
+  white-space: nowrap;
+}
 
-  .footer-link { text-align: center; margin-top: 1.5rem; }
-  .footer-link a { color: #666; font-size: 0.8rem; }
+@keyframes parpadeoToca {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+.logo-nube {
+  position: absolute;
+  top: 37.5%;
+  left: 50%;
+  width: 55%;
+  max-width: 320px;
+  z-index: 1;
+  pointer-events: none;
+  animation:
+    entradaNube 1.8s ease-out forwards,
+    flotarNube 4s ease-in-out 1.8s infinite;
+}
+
+@keyframes entradaNube {
+  0%   { transform: translate(-50%, -140vh); opacity: 0; }
+  55%  { opacity: 1; }
+  100% { transform: translate(-50%, 0); opacity: 1; }
+}
+
+@keyframes flotarNube {
+  0%, 100% { transform: translate(-50%, 0); }
+  50%      { transform: translate(-50%, -14px); }
+}
 
 /* ---------- CONFIGURACION ---------- */
 /* Igual que bienvenida: ocupa toda la pantalla para que el vídeo de fondo
@@ -93,7 +132,6 @@
   overflow-y: auto;
   overflow-x: hidden;
 }
-
 
 .fondo-video-config {
   position: fixed;
@@ -130,7 +168,6 @@
   border: 2px solid #fff;
 }
 
-/* ---------- SELECTOR DE PERSONAJES ---------- */
 /* ---------- SELECTOR DE PERSONAJES ---------- */
 .jugador-config {
   margin-bottom: 1.4rem;
@@ -212,105 +249,18 @@
   pointer-events: none;
 }
  
-/* ---------- BIENVENIDA ---------- */
-/* Esta vista escapa del ancho máximo de 480px: ocupa TODA la pantalla
-   (position: fixed, inset 0) para poder usarse como fondo a pantalla completa
-   tanto en móvil como en escritorio. */
-#vista-bienvenida {
-  position: fixed;
-  inset: 0;
+.contenido-config {
+  position: relative;
+  z-index: 1;
   width: 100%;
-  height: 100%;
-  max-width: none;
-  margin: 0;
-  padding: 0;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-
-  /* La imagen de fondo se controla por JS (configurarFondoBienvenida),
-     pero dejamos aquí los valores por defecto para que siempre cubra todo */
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-color: #1a1a2e; /* color de respaldo mientras carga la imagen */
+  max-width: 480px;
+  margin: auto;
+  /* Añadimos mucho más espacio (padding) abajo para engañar a iOS */
+  padding: 1.2rem 1.2rem 6rem 1.2rem; 
 }
 
-.texto-toca {
-  /* Centrado en el eje horizontal, y colocado en la mitad del primer
-     cuarto de pantalla empezando desde abajo (12.5% desde el borde inferior) */
-  position: absolute;
-  bottom: 12.5%;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1;
-  color: #fff;
-  font-size: 1.3rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
-  animation: parpadeoToca 1.6s ease-in-out infinite;
-  pointer-events: none;
-  text-align: center;
-  white-space: nowrap;
-}
 
-@keyframes parpadeoToca {
-  0%, 100% { opacity: 0.55; }
-  50% { opacity: 1; }
-}
-
-.logo-nube {
-  position: absolute;
-  top: 37.5%;
-  left: 50%;
-  width: 55%;
-  max-width: 320px;
-  z-index: 1;
-  pointer-events: none;
-  animation:
-    entradaNube 1.8s ease-out forwards,
-    flotarNube 4s ease-in-out 1.8s infinite;
-}
-
-@keyframes entradaNube {
-  0%   { transform: translate(-50%, -140vh); opacity: 0; }
-  55%  { opacity: 1; }
-  100% { transform: translate(-50%, 0); opacity: 1; }
-}
-
-@keyframes flotarNube {
-  0%, 100% { transform: translate(-50%, 0); }
-  50%      { transform: translate(-50%, -14px); }
-}
- 
-/* ---------- BARRIDO NEGRO ---------- */
-.barrido-negro {
-  position: fixed;
-  inset: 0;
-  background: #000;
-  z-index: 2000;
-  transform: scaleX(0);
-  transform-origin: left;
-  pointer-events: none;
-}
-.barrido-negro.entrando {
-  animation: barridoEntra 0.4s ease-in forwards;
-}
-.barrido-negro.saliendo {
-  transform-origin: right;
-  animation: barridoSale 0.4s ease-in forwards;
-}
-@keyframes barridoEntra {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
-}
-@keyframes barridoSale {
-  from { transform: scaleX(1); }
-  to { transform: scaleX(0); }
-}
-
-/* ---------- CAMPOS NOMBRE ---------- */
+ /* ---------- CAMPOS NOMBRE ---------- */
 .campo-nombre-wrap {
   position: relative;
   margin-bottom: 0.6rem;
@@ -337,6 +287,83 @@
  .btn-quitar-jugador:active {
   transform: translateY(-50%) scale(0.92); 
 }
+
+ /* ----------MUSICA--------- */
+.btn-musica {
+  position: fixed !important;
+  top: 1rem;
+  right: 1rem;
+  z-index: 999;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.5);
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  overflow: hidden;
+
+  /* Oculto hasta que se pase de la pantalla de bienvenida */
+  display: none;
+}
+
+.btn-musica.visible { display: block; }
+
+.btn-musica img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Línea diagonal que aparece cuando está silenciado */
+.btn-musica::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 8%;
+  width: 84%;
+  height: 3px;
+  background: #ff4757;
+  transform: translateY(-50%) rotate(-45deg);
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.btn-musica.silenciado::after {
+  opacity: 1;
+}
+
+ 
+ /* ---------- MAZOS ---------- */
+ 
+  .nombre-turno { text-align: center; font-size: 1.4rem; font-weight: 600; margin: 0.6rem 0 1.2rem; }
+
+
+  .mazo-boton {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.9rem; margin-bottom: 0.6rem; border-radius: 14px;
+    color: white; font-weight: 600; font-size: 1rem; cursor: pointer; border: none;
+    width: 100%; text-align: left;
+  }
+  .mazo-prismo { background: linear-gradient(135deg,#8e6bff,#4834d4); }
+  .mazo-lich { background: linear-gradient(135deg,#2c5f4a,#0d2b21); }
+  .mazo-caracol { background: linear-gradient(135deg,#20a89e,#0f5a54); }
+  .mazo-boton .icono { font-size: 1.4rem; }
+  .mazo-boton .sub { font-weight: 400; font-size: 0.75rem; opacity: 0.85; display: block; }
+
+  .carta-juego {
+    background: #f4f1ff; color: #2c2c54; border-radius: 16px;
+    padding: 1.5rem; text-align: center; margin: 1rem 0; min-height: 140px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem;
+  }
+  .carta-juego .tipo { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #6c63ff; font-weight: 700; }
+  .carta-juego .texto { font-size: 1.05rem; font-weight: 500; }
+
+  .footer-link { text-align: center; margin-top: 1.5rem; }
+  .footer-link a { color: #666; font-size: 0.8rem; }
 
 /* ---------- MAZOS CIRCULARES ---------- */
 .mazos-contenedor {
@@ -398,54 +425,35 @@
   .mazo-circular .icono-circular { width: 90px; height: 90px; }
 }
 
-
-.btn-musica {
-  position: fixed !important;
-  top: 1rem;
-  right: 1rem;
-  z-index: 999;
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.5);
-  border: none;
-  padding: 0;
-  margin: 0;
-  cursor: pointer;
-  overflow: hidden;
-
-  /* Oculto hasta que se pase de la pantalla de bienvenida */
-  display: none;
+ 
+ 
+/* ---------- BARRIDO NEGRO ---------- */
+.barrido-negro {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 2000;
+  transform: scaleX(0);
+  transform-origin: left;
+  pointer-events: none;
+}
+.barrido-negro.entrando {
+  animation: barridoEntra 0.4s ease-in forwards;
+}
+.barrido-negro.saliendo {
+  transform-origin: right;
+  animation: barridoSale 0.4s ease-in forwards;
+}
+@keyframes barridoEntra {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes barridoSale {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
 }
 
-.btn-musica.visible { display: block; }
 
-.btn-musica img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-}
-
-/* Línea diagonal que aparece cuando está silenciado */
-.btn-musica::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 8%;
-  width: 84%;
-  height: 3px;
-  background: #ff4757;
-  transform: translateY(-50%) rotate(-45deg);
-  border-radius: 2px;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-}
-
-.btn-musica.silenciado::after {
-  opacity: 1;
-}
-  
 </style>
 </head>
 
@@ -453,11 +461,6 @@
  
 <body>
 
-<audio id="musicaFondo" src="musica/musica.mp3" loop></audio>
-
-<button class="btn-musica" id="btnMusica">
-  <img src="icono/musica.gif" alt="Música">
-</button>
 
 <!-- VISTA BIENVENIDA -->
 <div class="vista activa" id="vista-bienvenida">
@@ -479,8 +482,12 @@
   </div>
 </div>
 
-<!-- BARRIDO NEGRO -->
-<div class="barrido-negro" id="barridoNegro"></div>
+<!-- VISTA MUSICA -->
+<audio id="musicaFondo" src="musica/musica.mp3" loop></audio>
+
+<button class="btn-musica" id="btnMusica">
+  <img src="icono/musica.gif" alt="Música">
+</button>
   
 <!-- VISTA MENU DE TURNO -->
 <div class="vista" id="vista-menu">
@@ -516,9 +523,69 @@
   <button id="btnSiguienteTurno">Siguiente jugador</button>
 </div>
 
+ 
+<!-- BARRIDO NEGRO -->
+<div class="barrido-negro" id="barridoNegro"></div>
+ 
  //________________________________________________________________________________________//
  
 <script>
+
+//GENERAL__________________________________________________________________________________________________________
+ 
+ // ====================== DETECCION DE DISPOSITIVO ======================
+function esMovilVertical() {
+  return window.matchMedia("(orientation: portrait)").matches;
+}
+
+ //BIENVENIDA__________________________________________________________________________________________________________
+ 
+ // ====================== BIENVENIDA -> CONFIG (tocar la pantalla) ======================
+document.getElementById("vista-bienvenida").addEventListener("click", () => {
+  if (intervaloFondoBienvenida) clearInterval(intervaloFondoBienvenida);
+
+  musica.play().catch(() => {
+  });
+  btnMusica.classList.remove("silenciado");
+  btnMusica.classList.add("visible");
+
+  transicionABarrido(() => {
+    mostrarVista("config");
+  });
+});
+
+
+// ====================== FONDO DE LA BIENVENIDA (IMAGEN, NO VIDEO) ======================
+function configurarFondoBienvenida() {
+  const vista = document.getElementById("vista-bienvenida");
+  const lista = esMovilVertical() ? IMG_BIENVENIDA_MOVIL : IMG_BIENVENIDA_ESCRITORIO;
+  vista.style.backgroundImage = `url("${lista[indiceFondoBienvenida % lista.length]}")`;
+}
+
+function iniciarRotacionFondoBienvenida() {
+  if (intervaloFondoBienvenida) clearInterval(intervaloFondoBienvenida);
+  intervaloFondoBienvenida = setInterval(() => {
+    const vista = document.getElementById("vista-bienvenida");
+    vista.style.opacity = "0";
+    setTimeout(() => {
+      indiceFondoBienvenida++;
+      configurarFondoBienvenida();
+      vista.style.opacity = "1";
+    }, 500);
+  }, SEGUNDOS_ENTRE_CAMBIOS * 1000);
+}
+
+configurarFondoBienvenida();
+iniciarRotacionFondoBienvenida();
+let orientacionActual = esMovilVertical();
+
+ const IMG_BIENVENIDA_ESCRITORIO = ["bienvenida/portatil.jpg", "bienvenida/portatil2.jpg", "bienvenida/portatil3.jpg"];
+const IMG_BIENVENIDA_MOVIL = ["bienvenida/movil.jpg", "bienvenida/movil2.jpg", "bienvenida/movil3.jpg"];
+const SEGUNDOS_ENTRE_CAMBIOS = 6;
+
+let indiceFondoBienvenida = 0;
+let intervaloFondoBienvenida = null;
+ 
 // ====================== CONTENIDO EDITABLE ======================
 const VENTAJAS = [
   "Avanza dos casillas", "Repite turno", "Inmune a la próxima desventaja",
@@ -529,10 +596,9 @@ const DESVENTAJAS = [
   "No puedes hablar hasta tu próximo turno", "Cambia de sitio con otro jugador"
 ];
 
-// Imágenes de fondo de la pantalla de bienvenida (carpeta "bienvenida")
-// Ajusta estas rutas si tus archivos se llaman de otra forma.
-const IMG_BIENVENIDA_ESCRITORIO = "bienvenida/portatil.jpg";
-const IMG_BIENVENIDA_MOVIL = "bienvenida/movil.jpg";
+
+
+ //CONFIGURACION__________________________________________________________________________________________________________
 
 // ====================== ESTADO ======================
 let estado = cargarEstado();
@@ -580,76 +646,7 @@ document.getElementById("btnListo").addEventListener("click", () => {
   });
 });
 
-// ====================== MENU DE TURNO ======================
-function jugadorActual() { return estado.jugadores[estado.turnoIndex % estado.jugadores.length]; }
-
-function irAMenuTurno() {
-  mostrarVista("menu");
-  document.getElementById("nombreTurno").textContent = jugadorActual().nombre;
-}
-
-document.querySelectorAll(".mazo-circular").forEach(btn => {
-  btn.addEventListener("click", () => sacarCarta(btn.dataset.mazo));
-});
-
-function sacarCarta(mazo) {
-  const jugador = jugadorActual();
-  let tipo = "", texto = "";
-
-  if (mazo === "ventaja") {
-    if (estado.poolVentaja.length === 0) estado.poolVentaja = mezclar([...VENTAJAS]);
-    texto = estado.poolVentaja.pop();
-    tipo = "Ventaja";
-  } else if (mazo === "desventaja") {
-    if (estado.poolDesventaja.length === 0) estado.poolDesventaja = mezclar([...DESVENTAJAS]);
-    texto = estado.poolDesventaja.pop();
-    tipo = "Desventaja";
-  } else if (mazo === "caracol") {
-    if (estado.poolCaracol.length === 0) {
-      estado.poolCaracol = mezclar([...VENTAJAS.map(t=>({texto:t,tipo:"Ventaja"})), ...DESVENTAJAS.map(t=>({texto:t,tipo:"Desventaja"}))]);
-    }
-    const c = estado.poolCaracol.pop();
-    texto = c.texto; tipo = c.tipo;
-  }
-
-  guardarEstado();
-  document.getElementById("tituloCartaVista").textContent = jugador.nombre;
-  document.getElementById("tipoCartaJuego").textContent = tipo;
-  document.getElementById("textoCartaJuego").textContent = texto;
-  mostrarVista("carta");
-}
-
-document.getElementById("btnSiguienteTurno").addEventListener("click", () => {
-  estado.turnoIndex = (estado.turnoIndex + 1) % estado.jugadores.length;
-  guardarEstado();
-  irAMenuTurno();
-});
-
-// ====================== REINICIAR ======================
-document.getElementById("btnReiniciarTodo").addEventListener("click", (e) => {
-  e.preventDefault();
-  if (confirm("¿Borrar la partida y empezar de cero?")) {
-    localStorage.removeItem("estadoJuegoTurnos");
-    location.reload();
-  }
-});
-
-// ====================== DETECCION DE DISPOSITIVO ======================
-function esMovilVertical() {
-  return window.matchMedia("(orientation: portrait)").matches;
-}
-
-// ====================== FONDO DE LA BIENVENIDA (IMAGEN, NO VIDEO) ======================
-function configurarFondoBienvenida() {
-  const vista = document.getElementById("vista-bienvenida");
-  const imagen = esMovilVertical() ? IMG_BIENVENIDA_MOVIL : IMG_BIENVENIDA_ESCRITORIO;
-  vista.style.backgroundImage = `url("${imagen}")`;
-}
-
-configurarFondoBienvenida();
-let orientacionActual = esMovilVertical();
-
-// ====================== TEMA AUTOMÁTICO SEGÚN EL FONDO ======================
+ // ====================== TEMA AUTOMÁTICO SEGÚN EL FONDO ======================
 // Analiza el brillo medio de una imagen de fondo y añade la clase "tema-claro"
 // o "tema-oscuro" a la vista indicada, para que el texto y los botones se
 // vean siempre bien sin tener que elegir el color a mano.
@@ -783,20 +780,7 @@ btnMusica.addEventListener("click", () => {
   }
 });
 
-// ====================== BIENVENIDA -> CONFIG (tocar la pantalla) ======================
-document.getElementById("vista-bienvenida").addEventListener("click", () => {
-  // Arranca la música al pasar de pantalla
-  musica.play().catch(() => {
-    // Si el navegador bloquea el autoplay de audio, el usuario podrá
-    // pulsar el icono de música manualmente para iniciarla.
-  });
-  btnMusica.classList.remove("silenciado");
-  btnMusica.classList.add("visible");
 
-  transicionABarrido(() => {
-    mostrarVista("config");
-  });
-});
 
 
 // ====================== AÑADIR / QUITAR JUGADORES ======================
@@ -952,6 +936,62 @@ function actualizarDisponibilidadPersonajes() {
   transicionABarrido(() => { irAMenuTurno(); });
 });
  
+
+// ====================== MENU DE TURNO ======================
+function jugadorActual() { return estado.jugadores[estado.turnoIndex % estado.jugadores.length]; }
+
+function irAMenuTurno() {
+  mostrarVista("menu");
+  document.getElementById("nombreTurno").textContent = jugadorActual().nombre;
+}
+
+document.querySelectorAll(".mazo-circular").forEach(btn => {
+  btn.addEventListener("click", () => sacarCarta(btn.dataset.mazo));
+});
+
+function sacarCarta(mazo) {
+  const jugador = jugadorActual();
+  let tipo = "", texto = "";
+
+  if (mazo === "ventaja") {
+    if (estado.poolVentaja.length === 0) estado.poolVentaja = mezclar([...VENTAJAS]);
+    texto = estado.poolVentaja.pop();
+    tipo = "Ventaja";
+  } else if (mazo === "desventaja") {
+    if (estado.poolDesventaja.length === 0) estado.poolDesventaja = mezclar([...DESVENTAJAS]);
+    texto = estado.poolDesventaja.pop();
+    tipo = "Desventaja";
+  } else if (mazo === "caracol") {
+    if (estado.poolCaracol.length === 0) {
+      estado.poolCaracol = mezclar([...VENTAJAS.map(t=>({texto:t,tipo:"Ventaja"})), ...DESVENTAJAS.map(t=>({texto:t,tipo:"Desventaja"}))]);
+    }
+    const c = estado.poolCaracol.pop();
+    texto = c.texto; tipo = c.tipo;
+  }
+
+  guardarEstado();
+  document.getElementById("tituloCartaVista").textContent = jugador.nombre;
+  document.getElementById("tipoCartaJuego").textContent = tipo;
+  document.getElementById("textoCartaJuego").textContent = texto;
+  mostrarVista("carta");
+}
+
+document.getElementById("btnSiguienteTurno").addEventListener("click", () => {
+  estado.turnoIndex = (estado.turnoIndex + 1) % estado.jugadores.length;
+  guardarEstado();
+  irAMenuTurno();
+});
+
+  //__________________________________________________________________________________________________________
+// ====================== REINICIAR ======================
+document.getElementById("btnReiniciarTodo").addEventListener("click", (e) => {
+  e.preventDefault();
+  if (confirm("¿Borrar la partida y empezar de cero?")) {
+    localStorage.removeItem("estadoJuegoTurnos");
+    location.reload();
+  }
+});
+
 // ====================== BARRIDO NEGRO ENTRE VISTAS ======================
 function transicionABarrido(callback) {
   const barrido = document.getElementById("barridoNegro");
