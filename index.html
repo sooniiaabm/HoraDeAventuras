@@ -866,15 +866,15 @@ document.getElementById("btnSiguienteTurno").addEventListener("click", () => {
   }
 });
  
- // =============================================================================
-// 5. TRANSICIONES (Barrido negro)
+// =============================================================================
+// 5. TRANSICIONES (Barrido negro) - CÓDIGO CORREGIDO
 // =============================================================================
 function transicionABarrido(callback, imagenBarrido) {
   const barrido = document.getElementById("barridoNegro");
 
-  // Reseteamos primero para asegurarnos de que el navegador "ve" el cambio
+  // Limpiamos clases antes de empezar
   barrido.classList.remove("entrando", "saliendo");
-  void barrido.offsetWidth; // fuerza reflow → evita que se salte la animación
+  void barrido.offsetWidth; // Truco técnico para reiniciar la animación
 
   if (imagenBarrido) {
     barrido.style.backgroundImage = `url("${imagenBarrido}")`;
@@ -886,12 +886,13 @@ function transicionABarrido(callback, imagenBarrido) {
 
   barrido.classList.add("entrando");
 
+  // Esperamos a que termine el barrido (400ms)
   setTimeout(() => {
     callback();
     barrido.classList.remove("entrando");
-    void barrido.offsetWidth; // fuerza reflow otra vez
     barrido.classList.add("saliendo");
-
+    
+    // Al terminar el barrido de salida, limpiamos
     setTimeout(() => {
       barrido.classList.remove("saliendo");
       barrido.style.backgroundImage = "none";
