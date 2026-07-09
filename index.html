@@ -341,27 +341,6 @@
  
   .nombre-turno { text-align: center; font-size: 1.4rem; font-weight: 600; margin: 0.6rem 0 1.2rem; }
 
-
-  .mazo-boton {
-    display: flex; align-items: center; gap: 0.6rem;
-    padding: 0.9rem; margin-bottom: 0.6rem; border-radius: 14px;
-    color: white; font-weight: 600; font-size: 1rem; cursor: pointer; border: none;
-    width: 100%; text-align: left;
-  }
-  .mazo-prismo { background: linear-gradient(135deg,#8e6bff,#4834d4); }
-  .mazo-lich { background: linear-gradient(135deg,#2c5f4a,#0d2b21); }
-  .mazo-caracol { background: linear-gradient(135deg,#20a89e,#0f5a54); }
-  .mazo-boton .icono { font-size: 1.4rem; }
-  .mazo-boton .sub { font-weight: 400; font-size: 0.75rem; opacity: 0.85; display: block; }
-
-  .carta-juego {
-    background: #f4f1ff; color: #2c2c54; border-radius: 16px;
-    padding: 1.5rem; text-align: center; margin: 1rem 0; min-height: 140px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem;
-  }
-  .carta-juego .tipo { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #6c63ff; font-weight: 700; }
-  .carta-juego .texto { font-size: 1.05rem; font-weight: 500; }
-
   .footer-link { text-align: center; margin-top: 1.5rem; }
   .footer-link a { color: #666; font-size: 0.8rem; }
 
@@ -406,9 +385,9 @@
 .mazo-circular .texto-mazo .sub { font-weight: 400; font-size: 0.75rem; opacity: 0.85; }
 
 .mazo-prismo { background: linear-gradient(135deg,#8e6bff,#4834d4); }
-.mazo-glitch { background: linear-gradient(135deg,#2c5f4a,#0d2b21); }
+.mazo-lich { background: linear-gradient(135deg,#2c5f4a,#0d2b21); }
 .mazo-caracol { background: linear-gradient(135deg,#20a89e,#0f5a54); }
-
+ 
 /* Móvil: solo icono circular, en columna, sin texto */
 @media (max-width: 600px) {
   .mazo-circular { justify-content: center; max-width: 100px; padding: 0; border-radius: 50%; }
@@ -471,7 +450,6 @@
   text-align: center;
 }
 .carta-dorso {
-  background-image: url("cartas/dorso.png");
   background-size: cover;
   background-position: center;
   background-color: #2c2c54;
@@ -669,7 +647,12 @@ iniciarRotacionFondoBienvenida();
 let estado = cargarEstado();
 const VENTAJAS = ["Avanza dos casillas", "Repite turno", "Inmune a la próxima desventaja", "Roba una carta a otro jugador", "Elige tu próxima casilla", "Doble puntos esta ronda"];
 const DESVENTAJAS = ["Pierdes un turno", "Retrocede tres casillas", "Vuelve a la casilla de salida", "No puedes hablar hasta tu próximo turno", "Cambia de sitio con otro jugador"];
-
+const DORSOS_MAZO = {
+  ventaja: "cartas/dorso-prismo.png",
+  desventaja: "cartas/dorso-lich.png",
+  caracol: "cartas/dorso-caracol.png"
+};
+ 
 function cargarEstado() { const g = localStorage.getItem("estadoJuegoTurnos"); return g ? JSON.parse(g) : null; }
 function guardarEstado() { localStorage.setItem("estadoJuegoTurnos", JSON.stringify(estado)); }
 function mezclar(arr) { return arr.map(v => [Math.random(), v]).sort((a,b)=>a[0]-b[0]).map(v=>v[1]); }
@@ -849,7 +832,15 @@ function sacarCarta(mazo) {
   if (mazo === "ventaja") { if (estado.poolVentaja.length === 0) estado.poolVentaja = mezclar([...VENTAJAS]); texto = estado.poolVentaja.pop(); tipo = "Ventaja"; }
   else if (mazo === "desventaja") { if (estado.poolDesventaja.length === 0) estado.poolDesventaja = mezclar([...DESVENTAJAS]); texto = estado.poolDesventaja.pop(); tipo = "Desventaja"; }
   else { if (estado.poolCaracol.length === 0) estado.poolCaracol = mezclar([...VENTAJAS.map(t=>({texto:t,tipo:"Ventaja"})), ...DESVENTAJAS.map(t=>({texto:t,tipo:"Desventaja"}))]); const c = estado.poolCaracol.pop(); texto = c.texto; tipo = c.tipo; }
+ 
+ 
+  document.querySelector(".carta-dorso").style.backgroundImage = `url("${DORSOS_MAZO[mazo]}")`;
 
+  document.getElementById("tipoCartaJuego").textContent = tipo;
+  document.getElementById("textoCartaJuego").textContent = texto;
+
+  document.getElementById("cartaFlip").classList.add("girada");
+ 
   document.getElementById("tipoCartaJuego").textContent = tipo;
   document.getElementById("textoCartaJuego").textContent = texto;
 
@@ -868,7 +859,14 @@ document.getElementById("btnSiguienteTurno").addEventListener("click", () => {
   transicionABarrido(() => { irAMenuTurno(); }, fondoTurnoDe(personajeSiguiente));
 });document.getElementById("btnReiniciarTodo").addEventListener("click", (e) => { e.preventDefault(); if (confirm("¿Reiniciar?")) { localStorage.removeItem("estadoJuegoTurnos"); location.reload(); } });
 
-// =============================================================================
+  document.getElementById("mazosContenedor").addEventListener("click", (e) => {
+  const btn = e.target.closest(".mazo-circular");
+  if (btn && !document.getElementById("mazosContenedor").classList.contains("desactivado")) {
+    sacarCarta(btn.dataset.mazo);
+  }
+});
+ 
+ // =============================================================================
 // 5. TRANSICIONES (Barrido negro)
 // =============================================================================
 function transicionABarrido(callback, imagenBarrido) {
