@@ -352,64 +352,31 @@
   .footer-link { text-align: center; margin-top: 1.5rem; }
   .footer-link a { color: #666; font-size: 0.8rem; }
 
-/* ---------- MAZOS CIRCULARES ---------- */
+/* ---------- MAZOS EN FORMA DE CARTA ---------- */
 .mazos-contenedor {
   display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-  align-items: center;
-}
-.mazo-circular {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  width: 100%;
-  max-width: 320px;
-  padding: 0.5rem;
-  border-radius: 100px;
-  border: none;
-  cursor: pointer;
-  color: white;
-  text-align: left;
-}
-.mazo-circular .icono-circular {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.15);
-  display: flex;
+  gap: 1.2rem;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  overflow: hidden;
-}
-.mazo-circular .icono-circular img {
-  width: 70%;
-  height: 70%;
-  object-fit: contain;
-}
-.mazo-circular .texto-mazo { display: flex; flex-direction: column; }
-.mazo-circular .texto-mazo .nombre-mazo { font-weight: 700; font-size: 1rem; }
-.mazo-circular .texto-mazo .sub { font-weight: 400; font-size: 0.75rem; opacity: 0.85; }
-
-.mazo-prismo { background: linear-gradient(135deg,#8e6bff,#4834d4); }
-.mazo-lich { background: linear-gradient(135deg,#2c5f4a,#0d2b21); }
-.mazo-caracol { background: linear-gradient(135deg,#20a89e,#0f5a54); }
- 
-/* Móvil: solo icono circular, en columna, sin texto */
-@media (max-width: 600px) {
-  .mazo-circular { justify-content: center; max-width: 100px; padding: 0; border-radius: 50%; }
-  .mazo-circular .texto-mazo { display: none; }
-  .mazo-circular .icono-circular { width: 80px; height: 80px; }
-  .mazos-contenedor { flex-direction: column; }
 }
 
-/* Escritorio: también en columna, iconos circulares, sin texto (según lo pedido) */
+/* Escritorio / portátil: fila horizontal, tamaño normal */
 @media (min-width: 601px) {
-  .mazos-contenedor { flex-direction: column; align-items: center; }
-  .mazo-circular { justify-content: center; max-width: 110px; padding: 0; border-radius: 50%; }
-  .mazo-circular .texto-mazo { display: none; }
-  .mazo-circular .icono-circular { width: 90px; height: 90px; }
+  .mazos-contenedor { flex-direction: row; }
+}
+
+/* Móvil: en columna, pero en pequeño para que quepa sin hacer scroll */
+@media (max-width: 600px) {
+  .mazos-contenedor { flex-direction: column; gap: 0.5rem; }
+  .mazo-carta-flip { width: 90px; height: 126px; }
+  .mazo-frente .texto { font-size: 0.62rem; }
+
+  /* Compactamos el resto de la vista de turno para que quepa todo en pantalla */
+  #vista-menu { padding: 0.6rem; }
+  #vista-menu h1 { font-size: 1rem; margin-bottom: 0.3rem; }
+  .avatar-turno { width: 60px; height: 60px; margin-bottom: 0.3rem; }
+  .nombre-turno { font-size: 1.1rem; margin: 0.2rem 0 0.5rem; }
+  #btnSiguienteTurno { margin-top: 0.5rem; }
 }
 
  /* ---------- PERSONALIZACION POR PERSONAJE ---------- */
@@ -434,49 +401,50 @@
 }
 .avatar-turno img { width: 100%; height: 100%; object-fit: cover; }
 
-/* ---------- CARTA CON FLIP ---------- */
-.carta-contenedor {
-  perspective: 1200px;
-  width: 220px;
-  max-width: 70vw;
-  height: 300px;
-  margin: 1.2rem auto;
+/* ---------- MAZOS INDIVIDUALES CON FLIP PROPIO ---------- */
+.mazo-carta-flip {
+  perspective: 1000px;
+  width: 110px;
+  height: 154px;
+  cursor: pointer;
 }
-.carta-flip {
+.mazo-interior {
   position: relative;
   width: 100%;
   height: 100%;
   transition: transform 0.6s cubic-bezier(0.4,0.2,0.2,1);
   transform-style: preserve-3d;
 }
-.carta-flip.girada { transform: rotateY(180deg); }
-.carta-cara {
+.mazo-carta-flip.girada .mazo-interior { transform: rotateY(180deg); }
+
+.mazo-cara {
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
-  border-radius: 18px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 1rem;
-  text-align: center;
+  border-radius: 12px;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.4);
 }
-.carta-dorso {
+.mazo-dorso {
   background-size: cover;
   background-position: center;
   background-color: #2c2c54;
 }
-.carta-frente {
+.mazo-frente {
   background: #f4f1ff;
   color: #2c2c54;
   transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem;
+  text-align: center;
 }
-.carta-frente .tipo { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #6c63ff; font-weight: 700; }
-.carta-frente .texto { font-size: 1.05rem; font-weight: 500; }
+.mazo-frente .tipo { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: #6c63ff; font-weight: 700; }
+.mazo-frente .texto { font-size: 0.72rem; font-weight: 500; line-height: 1.15; }
 
-.mazos-contenedor.desactivado .mazo-circular {
+.mazos-contenedor.desactivado .mazo-carta-flip {
   opacity: 0.4;
   pointer-events: none;
 }
@@ -555,29 +523,40 @@
   <div class="avatar-turno" id="avatarTurno"><img id="imgAvatarTurno" src="" alt=""></div>
   <div class="nombre-turno" id="nombreTurno"></div>
 
-  <div class="carta-contenedor">
-    <div class="carta-flip" id="cartaFlip">
-      <div class="carta-cara carta-dorso"></div>
-      <div class="carta-cara carta-frente">
-        <div class="tipo" id="tipoCartaJuego"></div>
-        <div class="texto" id="textoCartaJuego"></div>
+<div class="mazos-contenedor" id="mazosContenedor">
+    <div class="mazo-carta-flip" data-mazo="ventaja">
+      <div class="mazo-interior">
+        <div class="mazo-cara mazo-dorso" style="background-image:url('cartas/dorso-prismo.png')"></div>
+        <div class="mazo-cara mazo-frente">
+          <div class="tipo"></div>
+          <div class="texto"></div>
+        </div>
+      </div>
+    </div>
+    <div class="mazo-carta-flip" data-mazo="desventaja">
+      <div class="mazo-interior">
+        <div class="mazo-cara mazo-dorso" style="background-image:url('cartas/dorso-lich.png')"></div>
+        <div class="mazo-cara mazo-frente">
+          <div class="tipo"></div>
+          <div class="texto"></div>
+        </div>
+      </div>
+    </div>
+    <div class="mazo-carta-flip" data-mazo="caracol">
+      <div class="mazo-interior">
+        <div class="mazo-cara mazo-dorso" style="background-image:url('cartas/dorso-caracol.png')"></div>
+        <div class="mazo-cara mazo-frente">
+          <div class="tipo"></div>
+          <div class="texto"></div>
+        </div>
       </div>
     </div>
   </div>
 
   <div class="mazos-contenedor" id="mazosContenedor">
-    <button class="mazo-circular mazo-prismo" data-mazo="ventaja">
-      <span class="icono-circular"><img src="iconos/prismo.png" alt="Prismo"></span>
-      <span class="texto-mazo"><span class="nombre-mazo">Prismo</span><span class="sub">Ventaja</span></span>
-    </button>
-    <button class="mazo-circular mazo-lich" data-mazo="desventaja">
-      <span class="icono-circular"><img src="iconos/lich.png" alt="Lich"></span>
-      <span class="texto-mazo"><span class="nombre-mazo">Lich</span><span class="sub">Desventaja</span></span>
-    </button>
-    <button class="mazo-circular mazo-caracol" data-mazo="caracol">
-      <span class="icono-circular"><img src="iconos/caracol.png" alt="Caracol"></span>
-      <span class="texto-mazo"><span class="nombre-mazo">Caracol</span><span class="sub">Ventaja o desventaja</span></span>
-    </button>
+    <button class="mazo-carta" data-mazo="ventaja" style="background-image:url('cartas/dorso-prismo.png')" aria-label="Mazo Prismo (Ventaja)"></button>
+    <button class="mazo-carta" data-mazo="desventaja" style="background-image:url('cartas/dorso-lich.png')" aria-label="Mazo Lich (Desventaja)"></button>
+    <button class="mazo-carta" data-mazo="caracol" style="background-image:url('cartas/dorso-caracol.png')" aria-label="Mazo Caracol (Ventaja o desventaja)"></button>
   </div>
 
   <button id="btnSiguienteTurno">Siguiente jugador</button>
@@ -836,7 +815,7 @@ function irAMenuTurno() {
   document.getElementById("nombreTurno").textContent = jugador.nombre;
   actualizarAvatarTurno(jugador);
 
-  document.getElementById("cartaFlip").classList.remove("girada");
+  document.querySelectorAll(".mazo-carta-flip").forEach(c => c.classList.remove("girada"));
   document.getElementById("mazosContenedor").classList.remove("desactivado");
   document.getElementById("btnSiguienteTurno").classList.remove("visible");
 
@@ -848,19 +827,12 @@ function sacarCarta(mazo) {
   if (mazo === "ventaja") { if (estado.poolVentaja.length === 0) estado.poolVentaja = mezclar([...VENTAJAS]); texto = estado.poolVentaja.pop(); tipo = "Ventaja"; }
   else if (mazo === "desventaja") { if (estado.poolDesventaja.length === 0) estado.poolDesventaja = mezclar([...DESVENTAJAS]); texto = estado.poolDesventaja.pop(); tipo = "Desventaja"; }
   else { if (estado.poolCaracol.length === 0) estado.poolCaracol = mezclar([...VENTAJAS.map(t=>({texto:t,tipo:"Ventaja"})), ...DESVENTAJAS.map(t=>({texto:t,tipo:"Desventaja"}))]); const c = estado.poolCaracol.pop(); texto = c.texto; tipo = c.tipo; }
- 
- 
-  document.querySelector(".carta-dorso").style.backgroundImage = `url("${DORSOS_MAZO[mazo]}")`;
 
-  document.getElementById("tipoCartaJuego").textContent = tipo;
-  document.getElementById("textoCartaJuego").textContent = texto;
+  const cartaEl = document.querySelector(`.mazo-carta-flip[data-mazo="${mazo}"]`);
+  cartaEl.querySelector(".tipo").textContent = tipo;
+  cartaEl.querySelector(".texto").textContent = texto;
+  cartaEl.classList.add("girada");
 
-  document.getElementById("cartaFlip").classList.add("girada");
- 
-  document.getElementById("tipoCartaJuego").textContent = tipo;
-  document.getElementById("textoCartaJuego").textContent = texto;
-
-  document.getElementById("cartaFlip").classList.add("girada");
   document.getElementById("mazosContenedor").classList.add("desactivado");
   document.getElementById("btnSiguienteTurno").classList.add("visible");
 
@@ -877,8 +849,8 @@ document.getElementById("btnSiguienteTurno").addEventListener("click", () => {
   
  document.getElementById("btnReiniciarTodo").addEventListener("click", (e) => { e.preventDefault(); if (confirm("¿Reiniciar?")) { localStorage.removeItem("estadoJuegoTurnos"); location.reload(); } });
 
-  document.getElementById("mazosContenedor").addEventListener("click", (e) => {
-  const btn = e.target.closest(".mazo-circular");
+document.getElementById("mazosContenedor").addEventListener("click", (e) => {
+  const btn = e.target.closest(".mazo-carta-flip");
   if (btn && !document.getElementById("mazosContenedor").classList.contains("desactivado")) {
     sacarCarta(btn.dataset.mazo);
   }
