@@ -843,12 +843,10 @@ function crearCampoNombre(indice) {
   return wrap;
 }
 // Delegación de eventos para borrar jugadores
-// Delegación de eventos para borrar jugadores
 camposNombres.addEventListener("click", (e) => {
   const btn = e.target.closest(".btn-quitar-jugador");
   if (!btn) return;
   
-  // ¡AQUÍ ESTABA EL ERROR! Ahora borraremos todo el bloque del jugador, no solo el nombre
   const wrap = btn.closest(".jugador-config"); 
   if (!wrap) return;
 
