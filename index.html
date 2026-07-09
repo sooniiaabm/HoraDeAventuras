@@ -260,6 +260,30 @@
   50% { opacity: 1; }
 }
 
+.logo-nube {
+  position: absolute;
+  top: 37.5%;
+  left: 50%;
+  width: 55%;
+  max-width: 320px;
+  z-index: 1;
+  pointer-events: none;
+  animation:
+    entradaNube 1.8s ease-out forwards,
+    flotarNube 4s ease-in-out 1.8s infinite;
+}
+
+@keyframes entradaNube {
+  0%   { transform: translate(-50%, -140vh); opacity: 0; }
+  55%  { opacity: 1; }
+  100% { transform: translate(-50%, 0); opacity: 1; }
+}
+
+@keyframes flotarNube {
+  0%, 100% { transform: translate(-50%, 0); }
+  50%      { transform: translate(-50%, -14px); }
+}
+ 
 /* ---------- BARRIDO NEGRO ---------- */
 .barrido-negro {
   position: fixed;
@@ -424,6 +448,9 @@
   
 </style>
 </head>
+
+ //________________________________________________________________________________________//
+ 
 <body>
 
 <audio id="musicaFondo" src="musica/musica.mp3" loop></audio>
@@ -434,6 +461,10 @@
 
 <!-- VISTA BIENVENIDA -->
 <div class="vista activa" id="vista-bienvenida">
+ <div class="vista activa" id="vista-bienvenida">
+  <img src="bienvenida/logonube.png" alt="Logo" class="logonube">
+  <div class="texto-toca">Toca la pantalla</div>
+</div>
   <div class="texto-toca">Toca la pantalla</div>
 </div>
 
@@ -456,6 +487,7 @@
   <h1>Turno de</h1>
   <div class="nombre-turno" id="nombreTurno"></div>
 
+ <!-- VISTA MAZOS -->
  <div class="mazos-contenedor">
   <button class="mazo-circular mazo-prismo" data-mazo="ventaja">
     <span class="icono-circular"><img src="iconos/prismo.png" alt="Prismo"></span>
@@ -484,6 +516,8 @@
   <button id="btnSiguienteTurno">Siguiente jugador</button>
 </div>
 
+ //________________________________________________________________________________________//
+ 
 <script>
 // ====================== CONTENIDO EDITABLE ======================
 const VENTAJAS = [
