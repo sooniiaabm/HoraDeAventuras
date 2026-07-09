@@ -425,7 +425,75 @@
   .mazo-circular .icono-circular { width: 90px; height: 90px; }
 }
 
+ /* ---------- PERSONALIZACION POR PERSONAJE ---------- */
+#vista-menu {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: background-image 0.4s ease;
+}
  
+.avatar-turno {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  margin: 0 auto 0.8rem;
+  overflow: hidden;
+  border: 3px solid rgba(255,255,255,0.5);
+  background: #2c2c54;
+}
+.avatar-turno img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ---------- CARTA CON FLIP ---------- */
+.carta-contenedor {
+  perspective: 1200px;
+  width: 220px;
+  max-width: 70vw;
+  height: 300px;
+  margin: 1.2rem auto;
+}
+.carta-flip {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s cubic-bezier(0.4,0.2,0.2,1);
+  transform-style: preserve-3d;
+}
+.carta-flip.girada { transform: rotateY(180deg); }
+.carta-cara {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  text-align: center;
+}
+.carta-dorso {
+  background-image: url("cartas/dorso.png");
+  background-size: cover;
+  background-position: center;
+  background-color: #2c2c54;
+}
+.carta-frente {
+  background: #f4f1ff;
+  color: #2c2c54;
+  transform: rotateY(180deg);
+}
+.carta-frente .tipo { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #6c63ff; font-weight: 700; }
+.carta-frente .texto { font-size: 1.05rem; font-weight: 500; }
+
+.mazos-contenedor.desactivado .mazo-circular {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+#btnSiguienteTurno { display: none; }
+#btnSiguienteTurno.visible { display: block; }
  
 /* ---------- BARRIDO NEGRO ---------- */
 .barrido-negro {
@@ -489,37 +557,38 @@
 <!-- VISTA MENU DE TURNO -->
 <div class="vista" id="vista-menu">
   <h1>Turno de</h1>
+  <div class="avatar-turno" id="avatarTurno"><img id="imgAvatarTurno" src="" alt=""></div>
   <div class="nombre-turno" id="nombreTurno"></div>
 
- <!-- VISTA MAZOS -->
- <div class="mazos-contenedor">
-  <button class="mazo-circular mazo-prismo" data-mazo="ventaja">
-    <span class="icono-circular"><img src="iconos/prismo.png" alt="Prismo"></span>
-    <span class="texto-mazo"><span class="nombre-mazo">Prismo</span><span class="sub">Ventaja</span></span>
-  </button>
-  <button class="mazo-circular mazo-lich" data-mazo="desventaja">
-    <span class="icono-circular"><img src="iconos/lich.png" alt="Lich"></span>
-    <span class="texto-mazo"><span class="nombre-mazo">Lich</span><span class="sub">Desventaja</span></span>
-  </button>
-  <button class="mazo-circular mazo-caracol" data-mazo="caracol">
-    <span class="icono-circular"><img src="iconos/caracol.png" alt="Caracol"></span>
-    <span class="texto-mazo"><span class="nombre-mazo">Caracol</span><span class="sub">Ventaja o desventaja</span></span>
-  </button>
-</div>
+  <div class="carta-contenedor">
+    <div class="carta-flip" id="cartaFlip">
+      <div class="carta-cara carta-dorso"></div>
+      <div class="carta-cara carta-frente">
+        <div class="tipo" id="tipoCartaJuego"></div>
+        <div class="texto" id="textoCartaJuego"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mazos-contenedor" id="mazosContenedor">
+    <button class="mazo-circular mazo-prismo" data-mazo="ventaja">
+      <span class="icono-circular"><img src="iconos/prismo.png" alt="Prismo"></span>
+      <span class="texto-mazo"><span class="nombre-mazo">Prismo</span><span class="sub">Ventaja</span></span>
+    </button>
+    <button class="mazo-circular mazo-lich" data-mazo="desventaja">
+      <span class="icono-circular"><img src="iconos/lich.png" alt="Lich"></span>
+      <span class="texto-mazo"><span class="nombre-mazo">Lich</span><span class="sub">Desventaja</span></span>
+    </button>
+    <button class="mazo-circular mazo-caracol" data-mazo="caracol">
+      <span class="icono-circular"><img src="iconos/caracol.png" alt="Caracol"></span>
+      <span class="texto-mazo"><span class="nombre-mazo">Caracol</span><span class="sub">Ventaja o desventaja</span></span>
+    </button>
+  </div>
+
+  <button id="btnSiguienteTurno">Siguiente jugador</button>
 
   <div class="footer-link"><a href="#" id="btnReiniciarTodo">Reiniciar partida</a></div>
 </div>
-
-<!-- VISTA CARTA SACADA -->
-<div class="vista" id="vista-carta">
-  <h1 id="tituloCartaVista">Carta</h1>
-  <div class="carta-juego" id="cartaJuego">
-    <div class="tipo" id="tipoCartaJuego"></div>
-    <div class="texto" id="textoCartaJuego"></div>
-  </div>
-  <button id="btnSiguienteTurno">Siguiente jugador</button>
-</div>
-
  
 <!-- BARRIDO NEGRO -->
 <div class="barrido-negro" id="barridoNegro"></div>
@@ -671,8 +740,21 @@ btnMusica.addEventListener("click", () => {
 
 // Lógica de Jugadores
 let totalJugadores = 2;
-const PERSONAJES = [{id: "finn", nombre: "Finn", img: "personajes/finn.png"}, {id: "jake", nombre: "Jake", img: "personajes/jake.png"}, {id: "dulce", nombre: "Princesa chicle", img: "personajes/dulceprincesa.png"}, {id: "marceline", nombre: "Marceline", img: "personajes/marceline.png"}, {id: "reyhielo", nombre: "Rey Hielo", img: "personajes/reyhielo.png"}, {id: "bmo", nombre: "BMO", img: "personajes/bmo.png"}, {id: "princesallama", nombre: "Princesa Llama", img: "personajes/princesallama.png"}, {id: "trompi", nombre: "Trompi", img: "personajes/trompi.png"}, {id: "gunter", nombre: "Gunter", img: "personajes/gunter.png"}, {id: "menta", nombre: "Menta", img: "personajes/menta.png"}, {id: "ladyarcoiris", nombre: "Lady arcoiris", img: "personajes/ladyarcoiris.png"}, {id: "princesabultos", nombre: "Princesa bultos", img: "personajes/princesabultos.png"}];
-
+const PERSONAJES = [
+  {id:"finn", nombre:"Finn", img:"personajes/finn.png", fondo:"fondos-turno/finn.jpg"},
+  {id:"jake", nombre:"Jake", img:"personajes/jake.png", fondo:"fondos-turno/jake.jpg"},
+  {id:"dulce", nombre:"Princesa chicle", img:"personajes/dulceprincesa.png", fondo:"fondos-turno/dulceprincesa.jpg"},
+  {id:"marceline", nombre:"Marceline", img:"personajes/marceline.png", fondo:"fondos-turno/marceline.jpg"},
+  {id:"reyhielo", nombre:"Rey Hielo", img:"personajes/reyhielo.png", fondo:"fondos-turno/reyhielo.jpg"},
+  {id:"bmo", nombre:"BMO", img:"personajes/bmo.png", fondo:"fondos-turno/bmo.jpg"},
+  {id:"princesallama", nombre:"Princesa Llama", img:"personajes/princesallama.png", fondo:"fondos-turno/princesallama.jpg"},
+  {id:"trompi", nombre:"Trompi", img:"personajes/trompi.png", fondo:"fondos-turno/trompi.jpg"},
+  {id:"gunter", nombre:"Gunter", img:"personajes/gunter.png", fondo:"fondos-turno/gunter.jpg"},
+  {id:"menta", nombre:"Menta", img:"personajes/menta.png", fondo:"fondos-turno/menta.jpg"},
+  {id:"ladyarcoiris", nombre:"Lady arcoiris", img:"personajes/ladyarcoiris.png", fondo:"fondos-turno/ladyarcoiris.jpg"},
+  {id:"princesabultos", nombre:"Princesa bultos", img:"personajes/princesabultos.png", fondo:"fondos-turno/princesabultos.jpg"}
+];
+ 
 function crearCampoNombre(indice) {
   const wrap = document.createElement("div"); wrap.className = "jugador-config";
   const inputWrap = document.createElement("div"); inputWrap.className = "campo-nombre-wrap";
@@ -728,16 +810,48 @@ actualizarCamposNombres();
 // =============================================================================
 // 4. VISTA JUEGO (Menú de turno y Mazos)
 // =============================================================================
-function irAMenuTurno() { mostrarVista("menu"); document.getElementById("nombreTurno").textContent = estado.jugadores[estado.turnoIndex % estado.jugadores.length].nombre; }
-document.querySelectorAll(".mazo-circular").forEach(btn => btn.addEventListener("click", () => sacarCarta(btn.dataset.mazo)));
+function actualizarAvatarTurno(jugador) {
+  const vistaMenu = document.getElementById("vista-menu");
+  const avatarImg = document.getElementById("imgAvatarTurno");
+  const personaje = PERSONAJES.find(p => p.id === jugador.personaje);
+  if (personaje) {
+    avatarImg.src = personaje.img;
+    avatarImg.alt = personaje.nombre;
+    vistaMenu.style.backgroundImage = `url("${personaje.fondo}")`;
+  } else {
+    avatarImg.src = "";
+    avatarImg.alt = "";
+    vistaMenu.style.backgroundImage = "";
+  }
+}
 
+function irAMenuTurno() {
+  mostrarVista("menu");
+  const jugador = estado.jugadores[estado.turnoIndex % estado.jugadores.length];
+  document.getElementById("nombreTurno").textContent = jugador.nombre;
+  actualizarAvatarTurno(jugador);
+
+  document.getElementById("cartaFlip").classList.remove("girada");
+  document.getElementById("mazosContenedor").classList.remove("desactivado");
+  document.getElementById("btnSiguienteTurno").classList.remove("visible");
+
+  if (!musica.paused) musica.pause();
+  btnMusica.classList.remove("visible");
+}
 function sacarCarta(mazo) {
   let tipo = "", texto = "";
   if (mazo === "ventaja") { if (estado.poolVentaja.length === 0) estado.poolVentaja = mezclar([...VENTAJAS]); texto = estado.poolVentaja.pop(); tipo = "Ventaja"; }
   else if (mazo === "desventaja") { if (estado.poolDesventaja.length === 0) estado.poolDesventaja = mezclar([...DESVENTAJAS]); texto = estado.poolDesventaja.pop(); tipo = "Desventaja"; }
   else { if (estado.poolCaracol.length === 0) estado.poolCaracol = mezclar([...VENTAJAS.map(t=>({texto:t,tipo:"Ventaja"})), ...DESVENTAJAS.map(t=>({texto:t,tipo:"Desventaja"}))]); const c = estado.poolCaracol.pop(); texto = c.texto; tipo = c.tipo; }
-  document.getElementById("tituloCartaVista").textContent = estado.jugadores[estado.turnoIndex % estado.jugadores.length].nombre;
-  document.getElementById("tipoCartaJuego").textContent = tipo; document.getElementById("textoCartaJuego").textContent = texto; mostrarVista("carta");
+
+  document.getElementById("tipoCartaJuego").textContent = tipo;
+  document.getElementById("textoCartaJuego").textContent = texto;
+
+  document.getElementById("cartaFlip").classList.add("girada");
+  document.getElementById("mazosContenedor").classList.add("desactivado");
+  document.getElementById("btnSiguienteTurno").classList.add("visible");
+
+  guardarEstado();
 }
 
 document.getElementById("btnSiguienteTurno").addEventListener("click", () => { estado.turnoIndex++; guardarEstado(); irAMenuTurno(); });
