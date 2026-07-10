@@ -177,44 +177,44 @@
 }
 
 /* ---------- SELECTOR DE PERSONAJES ---------- */
+/* ---------- SELECTOR DE PERSONAJES (NUEVO ENFOQUE) ---------- */
 .jugador-config {
-  margin-bottom: 1.8rem;
-  padding-bottom: 1.4rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
   border-bottom: 1px solid rgba(255,255,255,0.1);
   display: flex;
   flex-direction: column;  /* Siempre en vertical: nombre arriba, personajes abajo */
   align-items: center;     /* Centra el input y los personajes horizontalmente */
   justify-content: center;
-  gap: 0.8rem;             /* Separación limpia entre el input y el bloque de personajes */
+  gap: 0.5rem;             /* Reducido para evitar espacios grandes entre nombre y avatares */
 }
 
 .personajes-grid {
-  display: grid;
-  /* Por defecto (Móvil): cuadrícula con un máximo de 4 columnas */
-  grid-template-columns: repeat(4, auto); 
-  justify-content: center;   /* Centra las filas de personajes respecto al centro de la pantalla */
-  gap: 0.8rem 0.6rem;        /* Espacio entre filas y columnas */
-  width: 100%;
-  padding: 0.4rem 0;
+  display: grid !important;
+  grid-template-columns: repeat(4, auto) !important; /* Máximo 4 columnas en móvil */
+  justify-content: center !important;   /* Centra las filas de personajes */
+  gap: 0.8rem 0.6rem !important;        /* Espacio equilibrado entre filas y columnas */
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: visible !important;       /* Desactivado completamente el scroll lateral */
+  padding: 0.4rem 0 !important;
+  flex: none !important;                /* Evita estiramientos verticales fantasmas */
 }
 
 /* ---------- ADAPTACIÓN PARA PC / PANTALLAS GRANDES ---------- */
 @media (min-width: 650px) {
   .jugador-config {
-    /* Mantenemos la estructura vertical también en PC para que no tire los personajes a la derecha */
     flex-direction: column;   
-    gap: 1.2rem;
+    gap: 0.6rem;           /* Mantiene un espaciado limpio en PC sin huecos gigantes */
   }
   
   .personajes-grid {
-    /* En PC: cambia automáticamente a un máximo de 7 columnas por fila */
-    grid-template-columns: repeat(7, auto); 
-    justify-content: center; /* Si hay menos de 7 o caen a la línea de abajo, se quedan centrados */
+    grid-template-columns: repeat(7, auto) !important; /* Máximo 7 columnas alineadas en PC */
   }
 }
 
 .jugador-config .campo-nombre-wrap {
-  margin-bottom: 0;    /* Quitamos el margen inferior antiguo */
+  margin-bottom: 0;    /* Evita herencias verticales molestas */
 }
 
 .personaje-avatar {
@@ -264,7 +264,7 @@
   cursor: not-allowed;
   pointer-events: none;
 }
- /* ---------- CAMPOS NOMBRE ---------- */
+/* ---------- CAMPOS NOMBRE ---------- */
 .campo-nombre-wrap {
   position: relative;
   margin-bottom: 0 !important;
@@ -274,8 +274,7 @@
 
 @media (min-width: 650px) {
   .jugador-config .campo-nombre-wrap {
-    flex: 0 0 240px; 
-    max-width: none; /* En PC recupera su comportamiento elástico */
+    max-width: 240px; /* Tamaño controlado del cuadro de texto en PC */
   }
 }
 .campo-nombre-wrap input { margin-bottom: 0; padding-right: 2.5rem; }
