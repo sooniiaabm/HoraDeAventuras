@@ -1309,17 +1309,37 @@ const cartaEl = document.querySelector(`.mazo-carta-flip[data-mazo="${mazo}"]`);
   document.getElementById("mazosContenedor").classList.add("desactivado");
   document.getElementById("btnSiguienteTurno").classList.add("visible");
 
-  // Efecto especial: "Pierdes un turno" se aplica en la PRÓXIMA vez que le toque a este jugador
+// Efectos especiales de ciertas cartas
+  const jugadorActual = estado.jugadores[estado.turnoIndex % estado.jugadores.length];
+  estado.efectosJugadores = estado.efectosJugadores || {};
+  estado.efectosJugadores[jugadorActual.id] = estado.efectosJugadores[jugadorActual.id] || {};
+
+  // "Pierdes un turno" se aplica en la PRÓXIMA vez que le toque a este jugador
   if (texto === "Pierdes un turno") {
-    const jugadorActual = estado.jugadores[estado.turnoIndex % estado.jugadores.length];
-    estado.efectosJugadores = estado.efectosJugadores || {};
-    estado.efectosJugadores[jugadorActual.id] = { pierdeTurno: true };
+    estado.efectosJugadores[jugadorActual.id].pierdeTurno = true;
+  }
+
+  // "Repite turno" se aplica AHORA MISMO: al pulsar "Siguiente jugador" vuelve a salir él
+  if (texto === "Repite turno") {
+    estado.efectosJugadores[jugadorActual.id].repiteTurno = true;
   }
 
   guardarEstado();
 }
-
+ 
 document.getElementById("btnSiguienteTurno").addEventListener("click", () => {
+  const jugadorActual = estado.jugadores[estado.turnoIndex % estado.jugadores.length];
+  const debeRepetir = !!(estado.efectosJugadores && estado.efectosJugadores[jugadorActual.id] && estado.efectosJugadores[jugadorActual.id].repiteTurno);
+
+  if (debeRepetir) {
+    // Consumimos el efecto y NO avanzamos el turnoIndex: vuelve a salir el mismo jugador
+    delete estado.efectosJugadores[jugadorActual.id].repiteTurno;
+    guardarEstado();
+    const personajeActual = PERSONAJES.find(p => p.id === jugadorActual.personaje);
+    transicionABarrido(() => { irAMenuTurno(); }, personajeActual ? personajeActual.color : null);
+    return;
+  }
+
   estado.turnoIndex++;
   guardarEstado();
   const jugadorSiguiente = estado.jugadores[estado.turnoIndex % estado.jugadores.length];
