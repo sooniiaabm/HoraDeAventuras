@@ -71,33 +71,31 @@
   --fondo-bienvenida: none;
 }
 
-#vista-bienvenida::before {
+#vista-bienvenida::before,
+#vista-bienvenida::after {
   content: "";
   position: absolute;
   inset: 0;
-  
-  /* Usamos la variable de CSS para el fondo */
-  background-image: var(--fondo-bienvenida); 
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  
-  /* Transición de opacidad pura, sin alterar tamaños */
-  transition: opacity 0.6s ease-in-out;
-  opacity: 1;
+}
+#vista-bienvenida::before {
+  background-image: var(--fondo-bienvenida);
   z-index: 0;
 }
-
-#vista-bienvenida.cambiando-fondo::before {
+#vista-bienvenida::after {
+  background-image: var(--fondo-bienvenida-next, var(--fondo-bienvenida));
   opacity: 0;
+  transition: opacity 0.6s ease-in-out;
+  z-index: 1;
+}
+#vista-bienvenida.cambiando-fondo::after {
+  opacity: 1;
 }
 
 .logonube, .texto-toca {
   z-index: 2 !important;
-}
-/* Cuando la bienvenida tenga esta clase, el fondo se desvanece */
-#vista-bienvenida.cambiando-fondo::before {
-  opacity: 0;
 }
  
 .texto-toca {
@@ -212,21 +210,17 @@
 }
 
 .personajes-grid {
-  display: grid !important;
-  /* Forzamos exactamente 4 columnas de 62px */
-  grid-template-columns: repeat(4, 62px) !important; 
-  justify-content: center !important;   /* Centra los elementos individuales dentro de las filas */
-  justify-items: center !important;
-  gap: 0.8rem 0.6rem !important;        
-  
-  /* ESTA ES LA SOLUCIÓN CLAVE PARA MÓVIL: */
-  width: max-content !important;        /* Hace que la rejilla mida exactamente lo que miden los 4 avatares */
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  gap: 0.8rem 0.6rem !important;
+  width: calc(4 * 62px + 3 * 0.6rem) !important; /* exactamente 4 por fila */
   max-width: 100% !important;
-  margin: 0 auto !important;            /* Empuja todo el bloque de la rejilla perfectamente al centro de la pantalla */
-  
+  margin: 0 auto !important;
   padding: 0.4rem 0 !important;
   overflow: visible !important;
 }
+.personaje-avatar { flex: 0 0 62px !important; }
 
 /* ---------- ADAPTACIÓN PARA PC / PANTALLAS GRANDES ---------- */
 @media (min-width: 650px) {
@@ -235,13 +229,10 @@
     gap: 0.6rem;           
   }
   
-  .personajes-grid {
-    /* En PC: cambia automáticamente a 7 columnas fijas y se mantiene centrado */
-    grid-template-columns: repeat(7, 62px) !important; 
-    width: max-content !important;
+.personajes-grid {
+    width: calc(7 * 62px + 6 * 0.6rem) !important;
     margin: 0 auto !important;
   }
-}
 
 .jugador-config .campo-nombre-wrap {
   margin-bottom: 0;    /* Evita herencias verticales molestas */
@@ -389,23 +380,29 @@
 /* ---------- MAZOS EN FORMA DE CARTA ---------- */
 .mazos-contenedor {
   display: flex;
+  flex-wrap: wrap;
   gap: 1.2rem;
   align-items: center;
   justify-content: center;
 }
 
-/* Escritorio / portátil: fila horizontal, tamaño normal */
+/* Escritorio / portátil: cartas más grandes */
 @media (min-width: 601px) {
-  .mazos-contenedor { flex-direction: row; }
+  .mazo-carta-flip { width: 150px; height: 210px; }
+  .mazo-frente .texto { font-size: 0.85rem; }
+  .mazo-frente .tipo { font-size: 0.68rem; }
 }
 
-/* Móvil: en columna, pero en pequeño para que quepa sin hacer scroll */
+/* Móvil: 2 cartas por fila, la 3ª cae debajo centrada */
 @media (max-width: 600px) {
-  .mazos-contenedor { flex-direction: column; gap: 0.5rem; }
-  .mazo-carta-flip { width: 90px; height: 126px; }
-  .mazo-frente .texto { font-size: 0.62rem; }
+  .mazos-contenedor {
+    gap: 0.8rem;
+    max-width: calc(2 * 100px + 0.8rem); /* ancho justo para 2 cartas */
+    margin: 0 auto;
+  }
+  .mazo-carta-flip { width: 100px; height: 140px; }
+  .mazo-frente .texto { font-size: 0.65rem; }
 
-  /* Compactamos el resto de la vista de turno para que quepa todo en pantalla */
   #vista-menu { padding: 0.6rem; }
   #vista-menu h1 { font-size: 1rem; margin-bottom: 0.3rem; }
   .avatar-turno { width: 60px; height: 60px; margin-bottom: 0.3rem; }
@@ -436,8 +433,6 @@
 /* ---------- MAZOS INDIVIDUALES CON FLIP PROPIO ---------- */
 .mazo-carta-flip {
   perspective: 1000px;
-  width: 110px;
-  height: 154px;
   cursor: pointer;
 }
 .mazo-interior {
@@ -652,15 +647,18 @@ function iniciarRotacionFondoBienvenida() {
     const imgTemporal = new Image();
     imgTemporal.src = nuevaImagen;
     
-    imgTemporal.onload = function() {
-      // 2. Desvanecemos la capa del fondo
+imgTemporal.onload = function() {
+      // 2. Colocamos la imagen nueva en la capa superior (aún invisible)
+      vista.style.setProperty('--fondo-bienvenida-next', `url("${nuevaImagen}")`);
+      void vista.offsetWidth; // fuerza al navegador a registrar el cambio antes de animar
+
+      // 3. Hacemos aparecer la capa superior encima de la actual (crossfade real)
       vista.classList.add("cambiando-fondo");
-      
-      // 3. Esperamos los 600ms de la transición para cambiar la imagen en la variable
+
       setTimeout(() => {
+        // 4. La capa de abajo pasa a tener ya la imagen nueva
         vista.style.setProperty('--fondo-bienvenida', `url("${nuevaImagen}")`);
-        
-        // 4. Volvemos a mostrar la capa con la nueva imagen ya fijada
+        // 5. Ocultamos la capa superior: como abajo ya es la misma imagen, no se nota nada
         vista.classList.remove("cambiando-fondo");
       }, 600);
     };
