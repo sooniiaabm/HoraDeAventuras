@@ -1147,8 +1147,19 @@ function actualizarDisponibilidadPersonajes() {
 
 function renombrarPlaceholders() { camposNombres.querySelectorAll("input").forEach((input, i) => input.placeholder = "Nombre jugador " + (i + 1)); }
 function actualizarBotonAgregar() { document.getElementById("btnAgregarJugador").style.display = totalJugadores >= 6 ? "none" : "block"; }
-function actualizarCamposNombres() { camposNombres.innerHTML = ""; for (let i = 0; i < totalJugadores; i++) camposNombres.appendChild(crearCampoNombre(i)); actualizarBotonAgregar(); }
-
+function actualizarCamposNombres() {
+  const actuales = camposNombres.querySelectorAll(".jugador-config").length;
+  if (actuales < totalJugadores) {
+    // Solo añadimos los campos nuevos que faltan, sin tocar los existentes
+    for (let i = actuales; i < totalJugadores; i++) camposNombres.appendChild(crearCampoNombre(i));
+  } else if (actuales > totalJugadores) {
+    // Quitamos campos sobrantes empezando por el final
+    const wraps = camposNombres.querySelectorAll(".jugador-config");
+    for (let i = actuales - 1; i >= totalJugadores; i--) wraps[i].remove();
+  }
+  actualizarBotonAgregar();
+}
+ 
 document.getElementById("btnAgregarJugador").addEventListener("click", () => { if (totalJugadores < 6) { totalJugadores++; actualizarCamposNombres(); } });
 actualizarCamposNombres();
 
