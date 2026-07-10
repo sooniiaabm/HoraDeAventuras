@@ -377,6 +377,7 @@
   align-items: center;
   justify-content: center;
   text-align: center;
+  transition: background-color 0.4s ease;
 }
 
 .escena-sobre {
@@ -477,6 +478,50 @@
   margin-top: 2.5rem;
 }
 #btnSiguienteSobre.visible { display: block; }
+
+/* Botón X para cerrar la carta */
+.btn-cerrar-carta {
+  position: fixed;
+  top: 8%;
+  left: 50%;
+  transform: translateX(-50%) scale(0.7);
+  z-index: 960;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  border: none;
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 0;
+  margin: 0;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.btn-cerrar-carta.visible {
+  display: flex;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) scale(1);
+}
+
+/* Animación de cierre: el papel se dobla y la carta "vuela" hacia el espectador
+   (aumenta un instante, luego se encoge y desciende, como si se guardara) */
+.escena-sobre.cerrando .carta-doblada {
+  transition: transform 0.55s cubic-bezier(0.55,0,0.85,0.35),
+              height 0.5s ease-in 0.05s,
+              opacity 0.4s ease 0.25s;
+}
+.escena-sobre.cerrando.tirando .carta-doblada {
+  transform: translate(-50%, 260px) scale(0.2);
+  height: 24px;
+  opacity: 0;
+}
 
 @media (max-width: 600px) {
   .escena-sobre { width: 220px; height: 160px; }
@@ -675,6 +720,7 @@
   </div>
   <button id="btnSiguienteSobre">Siguiente jugador</button>
   <div class="fondo-oscuro-carta" id="fondoOscuroCarta"></div>
+  <button class="btn-cerrar-carta" id="btnCerrarCarta">✕</button>
 </div>
 
 <!-- VISTA MUSICA -->
@@ -979,6 +1025,7 @@ const escenaSobre = document.getElementById("escenaSobre");
 const sobreEl = document.getElementById("sobreEl");
 const btnSiguienteSobre = document.getElementById("btnSiguienteSobre");
 const fondoOscuroCarta = document.getElementById("fondoOscuroCarta");
+const btnCerrarCarta = document.getElementById("btnCerrarCarta");
 
 function irASobreJugador(indice) {
   mostrarVista("sobre");
@@ -988,12 +1035,14 @@ function irASobreJugador(indice) {
 
   document.getElementById("tituloSobre").textContent = "Toca el sobre, " + jugador.nombre;
   document.getElementById("imgCartaSobre").src = personaje ? personaje.carta : "";
+  document.getElementById("vista-sobre").style.backgroundColor = personaje ? personaje.color : "";
 
   // Reiniciamos el estado visual del sobre
-  escenaSobre.classList.remove("abierta", "zoom");
+  escenaSobre.classList.remove("abierta", "zoom", "cerrando", "tirando");
   sobreEl.classList.remove("abierto");
   fondoOscuroCarta.classList.remove("visible");
   btnSiguienteSobre.classList.remove("visible");
+  btnCerrarCarta.classList.remove("visible");
 }
 
 function abrirSobre() {
@@ -1007,15 +1056,39 @@ function abrirSobre() {
     escenaSobre.classList.add("abierta");
   }, 450);
 
-  // Paso 3: zoom para verla bien grande, con fondo oscurecido
+ // Paso 3: zoom para verla bien grande, con fondo oscurecido
   setTimeout(() => {
     escenaSobre.classList.add("zoom");
     fondoOscuroCarta.classList.add("visible");
-    btnSiguienteSobre.classList.add("visible");
+    btnCerrarCarta.classList.add("visible");
   }, 450 + 700);
 }
 
+function cerrarCarta() {
+  if (!escenaSobre.classList.contains("zoom")) return; // solo si está abierta
+
+  btnCerrarCarta.classList.remove("visible");
+  fondoOscuroCarta.classList.remove("visible");
+
+  // Preparamos las transiciones de cierre
+  escenaSobre.classList.remove("zoom");
+  escenaSobre.classList.add("cerrando");
+
+  // Un frame después disparamos el estado final para que SÍ anime
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      escenaSobre.classList.add("tirando");
+    });
+  });
+
+  // Cuando termina la animación de guardado, mostramos "Siguiente jugador"
+  setTimeout(() => {
+    btnSiguienteSobre.classList.add("visible");
+  }, 600);
+}
+
 sobreEl.addEventListener("click", abrirSobre);
+btnCerrarCarta.addEventListener("click", cerrarCarta);
 
 btnSiguienteSobre.addEventListener("click", () => {
   presentacionIndex++;
@@ -1030,10 +1103,6 @@ btnSiguienteSobre.addEventListener("click", () => {
   }
 });
 
-// =============================================================================
-// 4. VISTA JUEGO (Menú de turno y Mazos)
-// =============================================================================
- 
 // =============================================================================
 // 4. VISTA JUEGO (Menú de turno y Mazos)
 // =============================================================================
