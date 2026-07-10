@@ -177,7 +177,6 @@
 }
 
 /* ---------- SELECTOR DE PERSONAJES ---------- */
-/* ---------- SELECTOR DE PERSONAJES (NUEVO ENFOQUE) ---------- */
 .jugador-config {
   margin-bottom: 1.8rem;
   padding-bottom: 1.4rem;
@@ -217,37 +216,7 @@
 }
 
 .jugador-config .campo-nombre-wrap {
-  flex: 0 0 220px;     /* Ancho fijo para el campo de nombre (puedes variarlo si quieres) */
   margin-bottom: 0;    /* Quitamos el margen inferior antiguo */
-}
-
-.personajes-grid {
-  display: flex;
-  gap: 0.8rem;
-  overflow-x: auto;
-  padding: 0.4rem 0.1rem 0.8rem;
-  
-  /* Esto hace que se estire a lo ancho todo lo posible */
-  flex: 1; 
-  
-  /* Estilos para Firefox */
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-}
-
-/* Estilos de la barra para Chrome, Safari y Edge */
-.personajes-grid::-webkit-scrollbar {
-  height: 6px; /* Altura de la barra horizontal */
-}
-.personajes-grid::-webkit-scrollbar-track {
-  background: transparent; /* El carril por donde se mueve es transparente */
-}
-.personajes-grid::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2); /* Color blanco semitransparente disimulado */
-  border-radius: 10px; /* Bordes redondeaditos */
-}
-.personajes-grid::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.4); /* Se ilumina un poquito al pasar el dedo o ratón */
 }
 
 .personaje-avatar {
@@ -297,16 +266,6 @@
   cursor: not-allowed;
   pointer-events: none;
 }
- 
-.contenido-config {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  max-width: 850px; 
-  margin: auto;
-  padding: 1.2rem 1.2rem 6rem 1.2rem; 
-}
-
  /* ---------- CAMPOS NOMBRE ---------- */
 .campo-nombre-wrap {
   position: relative;
