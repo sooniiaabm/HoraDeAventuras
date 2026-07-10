@@ -212,44 +212,47 @@
 .personajes-grid {
   display: flex !important;
   flex-wrap: wrap !important;
+  flex-direction: row !important;
   justify-content: center !important;
+  align-items: flex-start !important;
   gap: 0.8rem 0.6rem !important;
-  width: calc(4 * 62px + 3 * 0.6rem) !important; /* exactamente 4 por fila */
+  width: calc(4 * 62px + 3 * 0.6rem) !important;
   max-width: 100% !important;
   margin: 0 auto !important;
   padding: 0.4rem 0 !important;
   overflow: visible !important;
 }
-.personaje-avatar { flex: 0 0 62px !important; }
-
-/* ---------- ADAPTACIÓN PARA PC / PANTALLAS GRANDES ---------- */
-@media (min-width: 650px) {
-  .jugador-config {
-    flex-direction: column;   
-    gap: 0.6rem;           
-  }
-  
-.personajes-grid {
-    width: calc(7 * 62px + 6 * 0.6rem) !important;
-    margin: 0 auto !important;
-  }
-
-.jugador-config .campo-nombre-wrap {
-  margin-bottom: 0;    /* Evita herencias verticales molestas */
-}
 
 .personaje-avatar {
   all: unset;
-  flex: 0 0 auto;
-  width: 62px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  flex: 0 0 62px !important;
+  width: 62px !important;
+  max-width: 62px !important;
   gap: 0.3rem;
   cursor: pointer;
   opacity: 0.6;
   transition: opacity 0.15s ease, transform 0.15s ease;
 }
+
+@media (min-width: 650px) {
+  .jugador-config {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .personajes-grid {
+    width: calc(7 * 62px + 6 * 0.6rem) !important;
+    margin: 0 auto !important;
+  }
+}
+.jugador-config .campo-nombre-wrap {
+  margin-bottom: 0;    /* Evita herencias verticales molestas */
+}
+ 
 .personaje-avatar .icono-circular {
   width: 56px;
   height: 56px;
