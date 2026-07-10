@@ -66,31 +66,35 @@
   align-items: center;
   overflow: hidden;
   background-color: #1a1a2e;
+  
+  /* Definimos una variable CSS vacía por defecto */
+  --fondo-bienvenida: none;
 }
 
-/* Esta es la capa exclusiva para las imágenes de fondo (CORREGIDA) */
 #vista-bienvenida::before {
   content: "";
   position: absolute;
   inset: 0;
   
-  /* Forzamos los valores exactos aquí para evitar el efecto de zoom raro */
-  background-image: inherit; 
-  background-size: cover !important;
-  background-position: center !important;
-  background-repeat: no-repeat !important;
+  /* Usamos la variable de CSS para el fondo */
+  background-image: var(--fondo-bienvenida); 
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   
-  /* Transición suave y limpia */
-  transition: opacity 0.8s ease-in-out;
+  /* Transición de opacidad pura, sin alterar tamaños */
+  transition: opacity 0.6s ease-in-out;
   opacity: 1;
   z-index: 0;
 }
 
-/* Forzamos a que el logo y el texto se queden SIEMPRE por encima del fondo */
+#vista-bienvenida.cambiando-fondo::before {
+  opacity: 0;
+}
+
 .logonube, .texto-toca {
   z-index: 2 !important;
 }
-
 /* Cuando la bienvenida tenga esta clase, el fondo se desvanece */
 #vista-bienvenida.cambiando-fondo::before {
   opacity: 0;
@@ -209,23 +213,26 @@
 
 .personajes-grid {
   display: grid !important;
-  grid-template-columns: repeat(4, auto) !important; /* Máximo 4 columnas en móvil */
-  justify-content: center !important;   /* Centra las filas de personajes */
- justify-items: center !important; 
- gap: 0.8rem 0.6rem !important;        /* Espacio equilibrado entre filas y columnas */
+  /* Forzamos exactamente 4 columnas de 62px */
+  grid-template-columns: repeat(4, 62px) !important; 
+  justify-content: center !important;   /* Centra los elementos individuales dentro de las filas */
+  justify-items: center !important;
+  gap: 0.8rem 0.6rem !important;        
   
- width: max-content !important;
+  /* ESTA ES LA SOLUCIÓN CLAVE PARA MÓVIL: */
+  width: max-content !important;        /* Hace que la rejilla mida exactamente lo que miden los 4 avatares */
   max-width: 100% !important;
-  margin: 0 auto
-  overflow-x: visible !important;       /* Desactivado completamente el scroll lateral */
-       
+  margin: 0 auto !important;            /* Empuja todo el bloque de la rejilla perfectamente al centro de la pantalla */
+  
+  padding: 0.4rem 0 !important;
+  overflow: visible !important;
 }
 
 /* ---------- ADAPTACIÓN PARA PC / PANTALLAS GRANDES ---------- */
 @media (min-width: 650px) {
   .jugador-config {
     flex-direction: column;   
-    gap: 0.6rem;           /* Mantiene un espaciado limpio en PC sin huecos gigantes */
+    gap: 0.6rem;           
   }
   
   .personajes-grid {
@@ -624,14 +631,14 @@ function precargarImagenes(lista) {
 precargarImagenes(IMG_BIENVENIDA_ESCRITORIO);
 precargarImagenes(IMG_BIENVENIDA_MOVIL);
 
-// Configura el fondo inicial usando la propiedad inherit del CSS
+// Configura el fondo inicial modificando la variable CSS
 function configurarFondoBienvenida() {
   const vista = document.getElementById("vista-bienvenida");
   const lista = esMovilVertical() ? IMG_BIENVENIDA_MOVIL : IMG_BIENVENIDA_ESCRITORIO;
-  vista.style.backgroundImage = `url("${lista[indiceFondoBienvenida % lista.length]}")`;
+  vista.style.setProperty('--fondo-bienvenida', `url("${lista[indiceFondoBienvenida % lista.length]}")`);
 }
 
-// Rotación con fundido cruzado inteligente sin ocultar logos ni mostrar el fondo del body
+// Rotación usando variables CSS para evitar recálculos de tamaño (adiós zoom raro)
 function iniciarRotacionFondoBienvenida() {
   if (intervaloFondoBienvenida) clearInterval(intervaloFondoBienvenida);
   
@@ -641,21 +648,21 @@ function iniciarRotacionFondoBienvenida() {
     const lista = esMovilVertical() ? IMG_BIENVENIDA_MOVIL : IMG_BIENVENIDA_ESCRITORIO;
     const nuevaImagen = lista[indiceFondoBienvenida % lista.length];
     
-    // 1. Precargamos la imagen en memoria para que no parpadee en blanco
+    // 1. Precarga en memoria
     const imgTemporal = new Image();
     imgTemporal.src = nuevaImagen;
     
     imgTemporal.onload = function() {
-      // 2. Activamos el desvanecimiento SOLO de la capa de fondo (el logo se queda intacto)
+      // 2. Desvanecemos la capa del fondo
       vista.classList.add("cambiando-fondo");
       
-      // 3. Esperamos a que se vuelva invisible (800ms) para cambiar la imagen
+      // 3. Esperamos los 600ms de la transición para cambiar la imagen en la variable
       setTimeout(() => {
-        vista.style.backgroundImage = `url("${nuevaImagen}")`;
+        vista.style.setProperty('--fondo-bienvenida', `url("${nuevaImagen}")`);
         
-        // 4. Volvemos a mostrar la capa de fondo suavemente con la nueva imagen ya cargada
+        // 4. Volvemos a mostrar la capa con la nueva imagen ya fijada
         vista.classList.remove("cambiando-fondo");
-      }, 800);
+      }, 600);
     };
 
   }, SEGUNDOS_ENTRE_CAMBIOS * 1000);
