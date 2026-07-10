@@ -181,11 +181,39 @@
   margin-bottom: 1.4rem;
   padding-bottom: 1.2rem;
   border-bottom: 1px solid rgba(255,255,255,0.1);
-  
-  /* Nueva distribución en línea */
   display: flex;
-  align-items: center; /* Alinea verticalmente el input y los avatares */
-  gap: 1.5rem;         /* Espacio de separación entre el input y los personajes */
+  flex-direction: column; /* Por defecto en móvil: uno debajo del otro */
+  gap: 0.8rem;
+}
+
+/* Cuando la pantalla sea lo suficientemente grande, se pone en una sola línea */
+@media (min-width: 650px) {
+  .jugador-config {
+    flex-direction: row;
+    align-items: center;
+    gap: 1.5rem;
+  }
+}
+
+ /* En pantallas grandes, el input mantiene un tamaño fijo ideal */
+@media (min-width: 650px) {
+  .jugador-config .campo-nombre-wrap {
+    flex: 0 0 240px;
+    margin-bottom: 0;
+  }
+}
+
+.personajes-grid {
+  display: flex;
+  gap: 0.7rem;
+  overflow-x: auto;
+  padding: 0.4rem 0.1rem 0.8rem;
+  flex: 1;
+  width: 100%; /* Fuerza a usar todo el ancho disponible */
+  min-width: 0; /* Truco clave de Flexbox para evitar que los elementos hijos rompan el contenedor y se corten */
+  
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
 .jugador-config .campo-nombre-wrap {
@@ -274,12 +302,10 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 480px;
+  max-width: 850px; 
   margin: auto;
-  /* Añadimos mucho más espacio (padding) abajo para engañar a iOS */
   padding: 1.2rem 1.2rem 6rem 1.2rem; 
 }
-
 
  /* ---------- CAMPOS NOMBRE ---------- */
 .campo-nombre-wrap {
