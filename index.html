@@ -442,9 +442,17 @@
 .mazo-frente .tipo { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: #6c63ff; font-weight: 700; }
 .mazo-frente .texto { font-size: 0.72rem; font-weight: 500; line-height: 1.15; }
 
-.mazos-contenedor.desactivado .mazo-carta-flip {
+/* Las cartas NO giradas se vuelven semitransparentes y no se pueden volver a pulsar */
+.mazos-contenedor.desactivado .mazo-carta-flip:not(.girada) {
   opacity: 0.4;
+}
+
+/* Bloqueamos los clics en todo el contenedor, pero la carta girada se queda 100% opaca */
+.mazos-contenedor.desactivado .mazo-carta-flip {
   pointer-events: none;
+}
+.mazo-carta-flip.girada {
+  opacity: 1 !important;
 }
 
 #btnSiguienteTurno { display: none; }
