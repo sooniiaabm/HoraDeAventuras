@@ -372,8 +372,121 @@
   opacity: 1;
 }
 
- 
- /* ---------- MAZOS ---------- */
+/* ---------- VISTA SOBRE ---------- */
+#vista-sobre {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.escena-sobre {
+  position: relative;
+  width: 260px;
+  height: 180px;
+  margin: 2rem auto 1rem;
+}
+
+/* --- El sobre --- */
+.sobre {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  z-index: 3;
+}
+.sobre-cuerpo {
+  position: absolute;
+  inset: 0;
+  background: #d8c9a3;
+  border-radius: 6px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  z-index: 1;
+}
+/* Solapa triangular hecha con bordes */
+.sobre-solapa {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 0;
+  margin: 0 auto;
+  border-left: 130px solid transparent;
+  border-right: 130px solid transparent;
+  border-top: 90px solid #c7b489;
+  transform-origin: top center;
+  transition: transform 0.6s cubic-bezier(0.4,0.2,0.2,1);
+  z-index: 4;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+  pointer-events: none;
+}
+.sobre.abierto .sobre-solapa {
+  transform: rotateX(-180deg);
+}
+
+/* --- La carta doblada dentro --- */
+.carta-doblada {
+  position: absolute;
+  left: 50%;
+  top: 60px;
+  width: 190px;
+  height: 24px;
+  transform: translate(-50%, 0) scaleY(0.15);
+  transform-origin: center top;
+  background: #fdfaf3;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.35);
+  z-index: 2;
+  transition: transform 0.7s cubic-bezier(0.34,1.2,0.4,1),
+              height 0.7s cubic-bezier(0.34,1.2,0.4,1);
+}
+.carta-doblada img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Paso 1: la carta se despliega y sube fuera del sobre */
+.escena-sobre.abierta .carta-doblada {
+  transform: translate(-50%, -90px) scaleY(1);
+  height: 230px;
+  z-index: 5;
+}
+
+/* Paso 2: zoom para verla grande, centrada en pantalla */
+.escena-sobre.zoom .carta-doblada {
+  transform: translate(-50%, -90px) scale(1.9);
+  z-index: 950;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+}
+
+/* Fondo oscuro que aparece al hacer zoom, para centrar la atención */
+.fondo-oscuro-carta {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0);
+  transition: background 0.5s ease;
+  z-index: 900;
+  pointer-events: none;
+}
+.fondo-oscuro-carta.visible {
+  background: rgba(0,0,0,0.8);
+}
+
+#btnSiguienteSobre {
+  display: none;
+  max-width: 280px;
+  margin-top: 2.5rem;
+}
+#btnSiguienteSobre.visible { display: block; }
+
+@media (max-width: 600px) {
+  .escena-sobre { width: 220px; height: 160px; }
+  .sobre-solapa { border-left-width: 110px; border-right-width: 110px; border-top-width: 76px; }
+  .carta-doblada { width: 160px; top: 50px; }
+  .escena-sobre.abierta .carta-doblada { height: 190px; transform: translate(-50%, -75px) scaleY(1); }
+  .escena-sobre.zoom .carta-doblada { transform: translate(-50%, -75px) scale(1.7); }
+}
+
+/* ---------- MAZOS ---------- */
  
   .nombre-turno { text-align: center; font-size: 1.4rem; font-weight: 600; margin: 0.6rem 0 1.2rem; }
 
@@ -548,6 +661,22 @@
   </div>
 </div>
 
+<!-- VISTA SOBRE / CARTA -->
+<div class="vista" id="vista-sobre">
+  <h1 id="tituloSobre">Toca el sobre</h1>
+  <div class="escena-sobre" id="escenaSobre">
+    <div class="carta-doblada" id="cartaDoblada">
+      <img id="imgCartaSobre" src="" alt="">
+    </div>
+    <div class="sobre" id="sobreEl">
+      <div class="sobre-cuerpo"></div>
+      <div class="sobre-solapa"></div>
+    </div>
+  </div>
+  <button id="btnSiguienteSobre">Siguiente jugador</button>
+  <div class="fondo-oscuro-carta" id="fondoOscuroCarta"></div>
+</div>
+
 <!-- VISTA MUSICA -->
 <audio id="musicaFondo" src="musica/musica.mp3" loop></audio>
 
@@ -595,6 +724,8 @@
 
   <div class="footer-link"><a href="#" id="btnReiniciarTodo">Reiniciar partida</a></div>
 </div>
+
+ 
  
 <!-- BARRIDO NEGRO -->
 <div class="barrido-negro" id="barridoNegro"></div>
@@ -726,11 +857,10 @@ function finalizarConfiguracion() {
 
   const primerJugador = estado.jugadores[0];
   const personajePrimero = PERSONAJES.find(p => p.id === primerJugador.personaje);
-  
-  // Aquí faltaba cerrar el paréntesis de transicionABarrido y el de la función
-  transicionABarrido(() => { irAMenuTurno(); }, personajePrimero ? personajePrimero.color : null);
-} // <--- ESTA LLAVE FALTABA Y CERRABA LA FUNCIÓN
 
+  presentacionIndex = 0;
+  transicionABarrido(() => { irASobreJugador(0); }, personajePrimero ? personajePrimero.color : null);
+}
 // Ahora sí, fuera de la función, añadimos los eventos:
 btnListo.addEventListener("click", finalizarConfiguracion);
 btnListo.addEventListener("touchstart", (e) => { e.preventDefault(); finalizarConfiguracion(); }, { passive: false });
@@ -774,13 +904,13 @@ btnMusica.addEventListener("click", () => {
 // Lógica de Jugadores
 let totalJugadores = 2;
 const PERSONAJES = [
-  {id:"finn", nombre:"Finn", img:"personajes/finn.png", color:"#9DD0FF", fondoTurnoPC:"fondos-turno/pc/finn.jpg", fondoTurnoMovil:"fondos-turno/movil/finn.jpg"},  
-  {id:"jake", nombre:"Jake", img:"personajes/jake.png", color:"#AB8300", fondoTurnoPC:"fondos-turno/pc/jake.jpg", fondoTurnoMovil:"fondos-turno/movil/jake.jpg"},
-  {id:"dulce", nombre:"Princesa chicle", img:"personajes/dulceprincesa.png", color:"#FF9DE2", fondoTurnoPC:"fondos-turno/pc/princesachicle.jpg", fondoTurnoMovil:"fondos-turno/movil/princesachicle.jpg"},
-  {id:"marceline", nombre:"Marceline", img:"personajes/marceline.png", color:"#84B4B3", fondoTurnoPC:"fondos-turno/pc/marceline.jpg", fondoTurnoMovil:"fondos-turno/movil/marceline.jpg"},
-  {id:"reyhielo", nombre:"Rey Hielo", img:"personajes/reyhielo.png", color:"#3A65A3", fondoTurnoPC:"fondos-turno/pc/reyhielo.jpg", fondoTurnoMovil:"fondos-turno/movil/reyhielo.jpg"},
-  {id:"bmo", nombre:"BMO", img:"personajes/bmo.png", color:"#026A60", fondoTurnoPC:"fondos-turno/pc/bmo.jpg", fondoTurnoMovil:"fondos-turno/movil/bmo.jpg"},
-  {id:"princesallama", nombre:"Princesa Llama", img:"personajes/princesallama.png", color:"#C27A62", fondoTurnoPC:"fondos-turno/pc/princesallama.jpg", fondoTurnoMovil:"fondos-turno/movil/princesallama.jpg"},
+  {id:"finn", nombre:"Finn", img:"personajes/finn.png", color:"#9DD0FF", fondoTurnoPC:"fondos-turno/pc/finn.jpg", fondoTurnoMovil:"fondos-turno/movil/finn.jpg", carta:"cartas-personaje/finn.jpg"},  
+  {id:"jake", nombre:"Jake", img:"personajes/jake.png", color:"#AB8300", fondoTurnoPC:"fondos-turno/pc/jake.jpg", fondoTurnoMovil:"fondos-turno/movil/jake.jpg", carta:"cartas-personaje/jake.jpg"},
+  {id:"dulce", nombre:"Princesa chicle", img:"personajes/dulceprincesa.png", color:"#FF9DE2", fondoTurnoPC:"fondos-turno/pc/princesachicle.jpg", fondoTurnoMovil:"fondos-turno/movil/princesachicle.jpg", carta:"cartas-personaje/dulce.jpg"},
+  {id:"marceline", nombre:"Marceline", img:"personajes/marceline.png", color:"#84B4B3", fondoTurnoPC:"fondos-turno/pc/marceline.jpg", fondoTurnoMovil:"fondos-turno/movil/marceline.jpg", carta:"cartas-personaje/marceline.jpg"},
+  {id:"reyhielo", nombre:"Rey Hielo", img:"personajes/reyhielo.png", color:"#3A65A3", fondoTurnoPC:"fondos-turno/pc/reyhielo.jpg", fondoTurnoMovil:"fondos-turno/movil/reyhielo.jpg", carta:"cartas-personaje/reyhielo.jpg"},
+  {id:"bmo", nombre:"BMO", img:"personajes/bmo.png", color:"#026A60", fondoTurnoPC:"fondos-turno/pc/bmo.jpg", fondoTurnoMovil:"fondos-turno/movil/bmo.jpg", carta:"cartas-personaje/bmo.jpg"},
+  {id:"princesallama", nombre:"Princesa Llama", img:"personajes/princesallama.png", color:"#C27A62", fondoTurnoPC:"fondos-turno/pc/princesallama.jpg", fondoTurnoMovil:"fondos-turno/movil/princesallama.jpg", carta:"cartas-personaje/princesallama.jpg"},
 ];
 
  function fondoTurnoDe(personaje) {
@@ -840,6 +970,70 @@ function actualizarCamposNombres() { camposNombres.innerHTML = ""; for (let i = 
 document.getElementById("btnAgregarJugador").addEventListener("click", () => { if (totalJugadores < 6) { totalJugadores++; actualizarCamposNombres(); } });
 actualizarCamposNombres();
 
+// =============================================================================
+// 3.5 VISTA SOBRE (Presentación de cada jugador con su carta)
+// =============================================================================
+let presentacionIndex = 0;
+
+const escenaSobre = document.getElementById("escenaSobre");
+const sobreEl = document.getElementById("sobreEl");
+const btnSiguienteSobre = document.getElementById("btnSiguienteSobre");
+const fondoOscuroCarta = document.getElementById("fondoOscuroCarta");
+
+function irASobreJugador(indice) {
+  mostrarVista("sobre");
+
+  const jugador = estado.jugadores[indice];
+  const personaje = PERSONAJES.find(p => p.id === jugador.personaje);
+
+  document.getElementById("tituloSobre").textContent = "Toca el sobre, " + jugador.nombre;
+  document.getElementById("imgCartaSobre").src = personaje ? personaje.carta : "";
+
+  // Reiniciamos el estado visual del sobre
+  escenaSobre.classList.remove("abierta", "zoom");
+  sobreEl.classList.remove("abierto");
+  fondoOscuroCarta.classList.remove("visible");
+  btnSiguienteSobre.classList.remove("visible");
+}
+
+function abrirSobre() {
+  if (sobreEl.classList.contains("abierto")) return; // evita abrir dos veces
+
+  // Paso 1: se abre la solapa
+  sobreEl.classList.add("abierto");
+
+  // Paso 2: la carta se despliega y sale del sobre
+  setTimeout(() => {
+    escenaSobre.classList.add("abierta");
+  }, 450);
+
+  // Paso 3: zoom para verla bien grande, con fondo oscurecido
+  setTimeout(() => {
+    escenaSobre.classList.add("zoom");
+    fondoOscuroCarta.classList.add("visible");
+    btnSiguienteSobre.classList.add("visible");
+  }, 450 + 700);
+}
+
+sobreEl.addEventListener("click", abrirSobre);
+
+btnSiguienteSobre.addEventListener("click", () => {
+  presentacionIndex++;
+  if (presentacionIndex < estado.jugadores.length) {
+    const siguienteJugador = estado.jugadores[presentacionIndex];
+    const personajeSiguiente = PERSONAJES.find(p => p.id === siguienteJugador.personaje);
+    transicionABarrido(() => { irASobreJugador(presentacionIndex); }, personajeSiguiente ? personajeSiguiente.color : null);
+  } else {
+    const primerJugador = estado.jugadores[0];
+    const personajePrimero = PERSONAJES.find(p => p.id === primerJugador.personaje);
+    transicionABarrido(() => { irAMenuTurno(); }, personajePrimero ? personajePrimero.color : null);
+  }
+});
+
+// =============================================================================
+// 4. VISTA JUEGO (Menú de turno y Mazos)
+// =============================================================================
+ 
 // =============================================================================
 // 4. VISTA JUEGO (Menú de turno y Mazos)
 // =============================================================================
