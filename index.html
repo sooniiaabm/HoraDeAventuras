@@ -479,12 +479,13 @@
 }
 #btnSiguienteSobre.visible { display: block; }
 
-/* Botón X para cerrar la carta */
 .btn-cerrar-carta {
   position: fixed;
-  top: 8%;
+  top: 12%;
   left: 50%;
-  transform: translateX(-50%) scale(0.7);
+  /* Desplazamos desde el centro hasta la esquina superior derecha de la carta ampliada.
+     El ancho de la carta en zoom es 190px * 1.9 ≈ 360px, así que la mitad es 180px */
+  transform: translate(calc(-50% + 180px), 0) scale(0.7);
   z-index: 960;
   width: 2.6rem;
   height: 2.6rem;
@@ -507,7 +508,19 @@
   display: flex;
   opacity: 1;
   pointer-events: auto;
-  transform: translateX(-50%) scale(1);
+  transform: translate(calc(-50% + 180px), 0) scale(1);
+}
+
+@media (max-width: 600px) {
+  /* En móvil la carta ampliada mide 160px * 1.7 ≈ 272px, mitad ≈ 136px */
+  .btn-cerrar-carta,
+  .btn-cerrar-carta.visible {
+    transform: translate(calc(-50% + 136px), 0) scale(1);
+  }
+  .btn-cerrar-carta {
+    transform: translate(calc(-50% + 136px), 0) scale(0.7);
+    top: 15%;
+  }
 }
 
 /* Animación de cierre: el papel se dobla y la carta "vuela" hacia el espectador
