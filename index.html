@@ -155,9 +155,9 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 480px;
-  margin: auto; /* Al poner solo 'auto', se centra vertical y horizontalmente sin romper el scroll */
-  padding: 1.2rem;
+  max-width: 800px; /* <--- Cambiado de 480px a 800px para que quepa la fila */
+  margin: auto;
+  padding: 1.2rem 1.2rem 6rem 1.2rem; 
 }
 /* Tema automático: se añade por JS según el brillo medio del fondo activo.
    Por defecto (sin fondo, o fondo oscuro) se usan los colores actuales (claros sobre oscuro). */
@@ -181,13 +181,26 @@
   margin-bottom: 1.4rem;
   padding-bottom: 1.2rem;
   border-bottom: 1px solid rgba(255,255,255,0.1);
+  
+  /* Nueva distribución en línea */
+  display: flex;
+  align-items: center; /* Alinea verticalmente el input y los avatares */
+  gap: 1.5rem;         /* Espacio de separación entre el input y los personajes */
+}
+
+.jugador-config .campo-nombre-wrap {
+  flex: 0 0 220px;     /* Ancho fijo para el campo de nombre (puedes variarlo si quieres) */
+  margin-bottom: 0;    /* Quitamos el margen inferior antiguo */
 }
 
 .personajes-grid {
   display: flex;
-  gap: 0.7rem;
+  gap: 0.8rem;
   overflow-x: auto;
-  padding: 0.4rem 0.1rem 0.8rem; /* Un poco más de espacio por debajo para la barra */
+  padding: 0.4rem 0.1rem 0.8rem;
+  
+  /* Esto hace que se estire a lo ancho todo lo posible */
+  flex: 1; 
   
   /* Estilos para Firefox */
   scrollbar-width: thin;
