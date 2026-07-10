@@ -595,22 +595,32 @@
 
 /* ---------- ICONO VER CARTA + VISOR REUTILIZABLE ---------- */
 .icono-ver-carta {
-  width: 46px;
-  height: 64px;
+  width: 62px;
+  height: 62px;
   margin: 1.2rem auto 0;
-  background: #f4f1ff;
+  background: #e0e0e0;
   border: 2px solid rgba(255,255,255,0.6);
-  border-radius: 6px;
+  border-radius: 50%;
   box-shadow: 0 4px 10px rgba(0,0,0,0.35);
   cursor: pointer;
   padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.4rem;
+  overflow: hidden;
   flex-shrink: 0;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
-.icono-ver-carta:active { transform: scale(0.94); }
+.icono-ver-carta img {
+  width: 60%;
+  height: 60%;
+  object-fit: contain;
+  pointer-events: none;
+}
+.icono-ver-carta:active {
+  transform: scale(0.88);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.35);
+}
 
 .mensaje-turno-bloqueado {
   text-align: center;
@@ -633,15 +643,21 @@
   overflow: hidden;
   box-shadow: 0 6px 14px rgba(0,0,0,0.35);
   z-index: 952;
+  opacity: 0;
+  pointer-events: none;
   transition: left 0.7s cubic-bezier(0.34,1.2,0.4,1),
               top 0.7s cubic-bezier(0.34,1.2,0.4,1),
               transform 0.7s cubic-bezier(0.34,1.2,0.4,1),
-              height 0.7s cubic-bezier(0.34,1.2,0.4,1);
+              height 0.7s cubic-bezier(0.34,1.2,0.4,1),
+              opacity 0.15s ease;
 }
 .carta-visor img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-.visor-carta.abierta .carta-visor { transform: translate(-50%, -90px) scaleY(1); height: 230px; }
-.visor-carta.zoom .carta-visor {
+.visor-carta.abierta .carta-visor,
+.visor-carta.zoom .carta-visor,
+.visor-carta.cerrando .carta-visor { opacity: 1; }
+
+.visor-carta.abierta .carta-visor { transform: translate(-50%, -90px) scaleY(1); height: 230px; }.visor-carta.zoom .carta-visor {
   left: 50%; top: 50%;
   transform: translate(-50%, -50%) scale(1.9);
   box-shadow: 0 20px 50px rgba(0,0,0,0.6);
@@ -873,7 +889,9 @@
     </div>
   </div>
 
-  <button class="icono-ver-carta" id="btnVerCartaPersonaje" aria-label="Ver tu carta de personaje">🂠</button>
+<button class="icono-ver-carta" id="btnVerCartaPersonaje" aria-label="Ver tu carta de personaje">
+    <img src="icono/icono-carta.png" alt="Ver carta">
+  </button>
   <div class="mensaje-turno-bloqueado" id="mensajeTurnoBloqueado" style="display:none;">Pierdes este turno 😢</div>
 
   <button id="btnSiguienteTurno">Siguiente jugador</button>
