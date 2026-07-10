@@ -68,17 +68,19 @@
   background-color: #1a1a2e;
 }
 
-/* Esta es la nueva capa exclusiva para las imágenes de fondo */
+/* Esta es la capa exclusiva para las imágenes de fondo (CORREGIDA) */
 #vista-bienvenida::before {
   content: "";
   position: absolute;
   inset: 0;
-  /* Hereda la imagen que metas por JS */
+  
+  /* Forzamos los valores exactos aquí para evitar el efecto de zoom raro */
   background-image: inherit; 
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  /* Transición suave solo para la opacidad del fondo */
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  
+  /* Transición suave y limpia */
   transition: opacity 0.8s ease-in-out;
   opacity: 1;
   z-index: 0;
@@ -209,12 +211,14 @@
   display: grid !important;
   grid-template-columns: repeat(4, auto) !important; /* Máximo 4 columnas en móvil */
   justify-content: center !important;   /* Centra las filas de personajes */
-  gap: 0.8rem 0.6rem !important;        /* Espacio equilibrado entre filas y columnas */
-  width: 100% !important;
+ justify-items: center !important; 
+ gap: 0.8rem 0.6rem !important;        /* Espacio equilibrado entre filas y columnas */
+  
+ width: max-content !important;
   max-width: 100% !important;
+  margin: 0 auto
   overflow-x: visible !important;       /* Desactivado completamente el scroll lateral */
-  padding: 0.4rem 0 !important;
-  flex: none !important;                /* Evita estiramientos verticales fantasmas */
+       
 }
 
 /* ---------- ADAPTACIÓN PARA PC / PANTALLAS GRANDES ---------- */
@@ -225,7 +229,10 @@
   }
   
   .personajes-grid {
-    grid-template-columns: repeat(7, auto) !important; /* Máximo 7 columnas alineadas en PC */
+    /* En PC: cambia automáticamente a 7 columnas fijas y se mantiene centrado */
+    grid-template-columns: repeat(7, 62px) !important; 
+    width: max-content !important;
+    margin: 0 auto !important;
   }
 }
 
