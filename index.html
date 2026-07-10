@@ -351,6 +351,7 @@
   height: 100%;
   object-fit: contain;
   display: block;
+ transform: scale(1.3); /* Cambia 1.3 por 1.4 o 1.5 si lo quieres todavía más grande */
 }
 
 /* Línea diagonal que aparece cuando está silenciado */
@@ -423,9 +424,9 @@
 
 /* --- La carta doblada dentro --- */
 .carta-doblada {
-  position: absolute;
-  left: 50%;
-  top: 60px;
+  position: fixed;
+  left: var(--carta-x, 50%);
+  top: var(--carta-y, 50%);
   width: 190px;
   height: 24px;
   transform: translate(-50%, 0) scaleY(0.15);
@@ -435,7 +436,9 @@
   overflow: hidden;
   box-shadow: 0 6px 14px rgba(0,0,0,0.35);
   z-index: 2;
-  transition: transform 0.7s cubic-bezier(0.34,1.2,0.4,1),
+  transition: left 0.7s cubic-bezier(0.34,1.2,0.4,1),
+              top 0.7s cubic-bezier(0.34,1.2,0.4,1),
+              transform 0.7s cubic-bezier(0.34,1.2,0.4,1),
               height 0.7s cubic-bezier(0.34,1.2,0.4,1);
 }
 .carta-doblada img {
@@ -445,20 +448,21 @@
   display: block;
 }
 
-/* Paso 1: la carta se despliega y sube fuera del sobre */
+/* Paso 1: la carta se despliega y sube fuera del sobre (misma posición x/y base) */
 .escena-sobre.abierta .carta-doblada {
   transform: translate(-50%, -90px) scaleY(1);
   height: 230px;
   z-index: 5;
 }
 
-/* Paso 2: zoom para verla grande, centrada en pantalla */
+/* Paso 2: zoom, ahora centrada respecto a TODA la pantalla, no al sobre */
 .escena-sobre.zoom .carta-doblada {
-  transform: translate(-50%, -90px) scale(1.9);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(1.9);
   z-index: 950;
   box-shadow: 0 20px 50px rgba(0,0,0,0.6);
 }
-
 /* Fondo oscuro que aparece al hacer zoom, para centrar la atención */
 .fondo-oscuro-carta {
   position: fixed;
@@ -524,14 +528,17 @@
 }
 
 /* Animación de cierre: el papel se dobla y la carta "vuela" hacia el espectador
-   (aumenta un instante, luego se encoge y desciende, como si se guardara) */
+   (se encoge y desciende, como si se guardara), siempre partiendo del centro real */
 .escena-sobre.cerrando .carta-doblada {
-  transition: transform 0.55s cubic-bezier(0.55,0,0.85,0.35),
+  transition: left 0.55s cubic-bezier(0.55,0,0.85,0.35),
+              top 0.55s cubic-bezier(0.55,0,0.85,0.35),
+              transform 0.55s cubic-bezier(0.55,0,0.85,0.35),
               height 0.5s ease-in 0.05s,
               opacity 0.4s ease 0.25s;
 }
 .escena-sobre.cerrando.tirando .carta-doblada {
-  transform: translate(-50%, 260px) scale(0.2);
+  top: 120%;
+  transform: translate(-50%, -50%) scale(0.2);
   height: 24px;
   opacity: 0;
 }
@@ -539,10 +546,9 @@
 @media (max-width: 600px) {
   .escena-sobre { width: 220px; height: 160px; }
   .sobre-solapa { border-left-width: 110px; border-right-width: 110px; border-top-width: 76px; }
-  .carta-doblada { width: 160px; top: 50px; }
+  .carta-doblada { width: 160px; }
   .escena-sobre.abierta .carta-doblada { height: 190px; transform: translate(-50%, -75px) scaleY(1); }
-  .escena-sobre.zoom .carta-doblada { transform: translate(-50%, -75px) scale(1.7); }
-}
+  .escena-sobre.zoom .carta-doblada { left: 50%; top: 50%; transform: translate(-50%, -50%) scale(1.7); }
 
 /* ---------- MAZOS ---------- */
  
@@ -1040,8 +1046,18 @@ const btnSiguienteSobre = document.getElementById("btnSiguienteSobre");
 const fondoOscuroCarta = document.getElementById("fondoOscuroCarta");
 const btnCerrarCarta = document.getElementById("btnCerrarCarta");
 
+function actualizarPosicionCartaSobre() {
+  // Calculamos en píxeles reales dónde está el sobre en la pantalla,
+  // para que la carta "nazca" justo ahí antes de centrarse en el zoom.
+  const rect = escenaSobre.getBoundingClientRect();
+  const offsetTop = esMovilVertical() ? 50 : 60;
+  document.documentElement.style.setProperty('--carta-x', (rect.left + rect.width / 2) + 'px');
+  document.documentElement.style.setProperty('--carta-y', (rect.top + offsetTop) + 'px');
+}
+
 function irASobreJugador(indice) {
   mostrarVista("sobre");
+  actualizarPosicionCartaSobre();
 
   const jugador = estado.jugadores[indice];
   const personaje = PERSONAJES.find(p => p.id === jugador.personaje);
