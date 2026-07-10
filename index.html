@@ -68,14 +68,14 @@
   justify-content: center;
   align-items: center;
   overflow: hidden;
-
-  /* La imagen de fondo se controla por JS (configurarFondoBienvenida),
-     pero dejamos aquí los valores por defecto para que siempre cubra todo */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-color: #1a1a2e; /* color de respaldo mientras carga la imagen */
-  transition: opacity 1s ease;
+  background-color: #1a1a2e;
+  
+  /* Asegura la transición de suavizado */
+  transition: opacity 0.6s ease-in-out;
+  opacity: 1;
 }
 
 .texto-toca {
@@ -177,42 +177,43 @@
 }
 
 /* ---------- SELECTOR DE PERSONAJES ---------- */
+/* ---------- SELECTOR DE PERSONAJES (NUEVO ENFOQUE) ---------- */
 .jugador-config {
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
+  margin-bottom: 1.8rem;
+  padding-bottom: 1.4rem;
   border-bottom: 1px solid rgba(255,255,255,0.1);
   display: flex;
-  flex-direction: column; /* Apilado compacto en móvil */
-  gap: 0.3rem;            /* Evita la separación excesiva en móvil */
-}
-
-@media (min-width: 650px) {
-  .jugador-config {
-    flex-direction: row;  /* En una sola línea horizontal para PC */
-    align-items: center;
-    gap: 1.5rem;
-  }
-}
-
- /* En pantallas grandes, el input mantiene un tamaño fijo ideal */
-@media (min-width: 650px) {
-  .jugador-config .campo-nombre-wrap {
-    flex: 0 0 240px;
-    margin-bottom: 0;
-  }
+  flex-direction: column; 
+  align-items: center;     /* Centra el input y los personajes horizontalmente */
+  justify-content: center;
+  gap: 0.8rem;             /* Separación limpia entre el input y el bloque de personajes */
 }
 
 .personajes-grid {
-  display: flex;
-  gap: 0.8rem;
-  overflow-x: auto;
-  padding: 0.2rem 0.1rem 0.6rem;
-  flex: 1;
+  display: grid;
+  /* Crea una rejilla donde los personajes se envuelven de forma limpia */
+  grid-template-columns: repeat(4, auto); /* Intenta poner 4 columnas en móvil */
+  justify-content: center;                 /* Centra las filas de personajes */
+  gap: 0.8rem 0.6rem;                      /* Espacio entre filas y columnas */
   width: 100%;
-  min-width: 0; /* Evita que flexbox colapse y rompa el scroll en pantallas pequeñas */
+  padding: 0.4rem 0;
+}
+
+/* Cuando haya 7 personajes, la segunda fila (de 3) se centrará automáticamente gracias al justify-content */
+
+/* ---------- ADAPTACIÓN PARA PC / PANTALLAS GRANDES ---------- */
+@media (min-width: 650px) {
+  .jugador-config {
+    flex-direction: row;   /* En PC vuelve a ponerse todo en una elegante línea de lado a lado */
+    align-items: center;
+    gap: 1.5rem;
+  }
   
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  .personajes-grid {
+    display: flex;         /* En PC vuelven a estar todos en una sola fila fluida */
+    flex: 1;
+    overflow-x: visible;   /* No necesita scroll en pantallas grandes */
+  }
 }
 
 .jugador-config .campo-nombre-wrap {
@@ -309,12 +310,15 @@
  /* ---------- CAMPOS NOMBRE ---------- */
 .campo-nombre-wrap {
   position: relative;
-  margin-bottom: 0 !important; /* Resetea herencias verticales */
+  margin-bottom: 0 !important;
   width: 100%;
+  max-width: 280px; /* Limitamos el ancho en móvil para que quede estético y centrado */
 }
+
 @media (min-width: 650px) {
   .jugador-config .campo-nombre-wrap {
-    flex: 0 0 240px; /* Ancho fijo y controlado del input en formato horizontal (PC) */
+    flex: 0 0 240px; 
+    max-width: none; /* En PC recupera su comportamiento elástico */
   }
 }
 .campo-nombre-wrap input { margin-bottom: 0; padding-right: 2.5rem; }
@@ -648,7 +652,7 @@ function configurarFondoBienvenida() {
   vista.style.backgroundImage = `url("${lista[indiceFondoBienvenida % lista.length]}")`;
 }
 
-// Rotación del fondo sin pantallazos negros
+// Rotación del fondo con efecto de difuminado fluido (Fade-in / Fade-out)
 function iniciarRotacionFondoBienvenida() {
   if (intervaloFondoBienvenida) clearInterval(intervaloFondoBienvenida);
   
@@ -658,8 +662,17 @@ function iniciarRotacionFondoBienvenida() {
     const lista = esMovilVertical() ? IMG_BIENVENIDA_MOVIL : IMG_BIENVENIDA_ESCRITORIO;
     const nuevaImagen = lista[indiceFondoBienvenida % lista.length];
     
-    // Cambio directo: eliminamos el cambio de opacidad para que no parpadee a negro
-    vista.style.backgroundImage = `url("${nuevaImagen}")`;
+    // 1. Desvanecer la pantalla (Fade out)
+    vista.style.opacity = 0;
+    
+    // 2. Esperamos a que termine de ocultarse (600ms igual que el CSS) para cambiar el fondo
+    setTimeout(() => {
+      vista.style.backgroundImage = `url("${nuevaImagen}")`;
+      
+      // 3. Volvemos a mostrarla suavemente (Fade in)
+      vista.style.opacity = 1;
+    }, 600);
+    
   }, SEGUNDOS_ENTRE_CAMBIOS * 1000);
 }
 
