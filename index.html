@@ -155,7 +155,7 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 800px; /* <--- Cambiado de 480px a 800px para que quepa la fila */
+  max-width: 850px; /* <--- Cambiado de 480px a 800px para que quepa la fila */
   margin: auto;
   padding: 1.2rem 1.2rem 6rem 1.2rem; 
 }
@@ -178,18 +178,17 @@
 
 /* ---------- SELECTOR DE PERSONAJES ---------- */
 .jugador-config {
-  margin-bottom: 1.4rem;
-  padding-bottom: 1.2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
   border-bottom: 1px solid rgba(255,255,255,0.1);
   display: flex;
-  flex-direction: column; /* Por defecto en móvil: uno debajo del otro */
-  gap: 0.8rem;
+  flex-direction: column; /* Apilado compacto en móvil */
+  gap: 0.3rem;            /* Evita la separación excesiva en móvil */
 }
 
-/* Cuando la pantalla sea lo suficientemente grande, se pone en una sola línea */
 @media (min-width: 650px) {
   .jugador-config {
-    flex-direction: row;
+    flex-direction: row;  /* En una sola línea horizontal para PC */
     align-items: center;
     gap: 1.5rem;
   }
@@ -205,12 +204,12 @@
 
 .personajes-grid {
   display: flex;
-  gap: 0.7rem;
+  gap: 0.8rem;
   overflow-x: auto;
-  padding: 0.4rem 0.1rem 0.8rem;
+  padding: 0.2rem 0.1rem 0.6rem;
   flex: 1;
-  width: 100%; /* Fuerza a usar todo el ancho disponible */
-  min-width: 0; /* Truco clave de Flexbox para evitar que los elementos hijos rompan el contenedor y se corten */
+  width: 100%;
+  min-width: 0; /* Evita que flexbox colapse y rompa el scroll en pantallas pequeñas */
   
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
@@ -310,7 +309,13 @@
  /* ---------- CAMPOS NOMBRE ---------- */
 .campo-nombre-wrap {
   position: relative;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0 !important; /* Resetea herencias verticales */
+  width: 100%;
+}
+@media (min-width: 650px) {
+  .jugador-config .campo-nombre-wrap {
+    flex: 0 0 240px; /* Ancho fijo y controlado del input en formato horizontal (PC) */
+  }
 }
 .campo-nombre-wrap input { margin-bottom: 0; padding-right: 2.5rem; }
 .btn-quitar-jugador {
