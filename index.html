@@ -54,9 +54,6 @@
 
  
 /* ---------- BIENVENIDA ---------- */
-/* Esta vista escapa del ancho máximo de 480px: ocupa TODA la pantalla
-   (position: fixed, inset 0) para poder usarse como fondo a pantalla completa
-   tanto en móvil como en escritorio. */
 #vista-bienvenida {
   position: fixed;
   inset: 0;
@@ -68,16 +65,35 @@
   justify-content: center;
   align-items: center;
   overflow: hidden;
+  background-color: #1a1a2e;
+}
+
+/* Esta es la nueva capa exclusiva para las imágenes de fondo */
+#vista-bienvenida::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* Hereda la imagen que metas por JS */
+  background-image: inherit; 
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-color: #1a1a2e;
-  
-  /* Asegura la transición de suavizado */
-  transition: opacity 0.6s ease-in-out;
+  /* Transición suave solo para la opacidad del fondo */
+  transition: opacity 0.8s ease-in-out;
   opacity: 1;
+  z-index: 0;
 }
 
+/* Forzamos a que el logo y el texto se queden SIEMPRE por encima del fondo */
+.logonube, .texto-toca {
+  z-index: 2 !important;
+}
+
+/* Cuando la bienvenida tenga esta clase, el fondo se desvanece */
+#vista-bienvenida.cambiando-fondo::before {
+  opacity: 0;
+}
+ 
 .texto-toca {
   /* Centrado en el eje horizontal, y colocado en la mitad del primer
      cuarto de pantalla empezando desde abajo (12.5% desde el borde inferior) */
@@ -601,14 +617,14 @@ function precargarImagenes(lista) {
 precargarImagenes(IMG_BIENVENIDA_ESCRITORIO);
 precargarImagenes(IMG_BIENVENIDA_MOVIL);
 
-// Configura el fondo inicial
+// Configura el fondo inicial usando la propiedad inherit del CSS
 function configurarFondoBienvenida() {
   const vista = document.getElementById("vista-bienvenida");
   const lista = esMovilVertical() ? IMG_BIENVENIDA_MOVIL : IMG_BIENVENIDA_ESCRITORIO;
   vista.style.backgroundImage = `url("${lista[indiceFondoBienvenida % lista.length]}")`;
 }
 
-// Rotación del fondo con precarga en tiempo real para evitar parpadeos
+// Rotación con fundido cruzado inteligente sin ocultar logos ni mostrar el fondo del body
 function iniciarRotacionFondoBienvenida() {
   if (intervaloFondoBienvenida) clearInterval(intervaloFondoBienvenida);
   
@@ -618,21 +634,21 @@ function iniciarRotacionFondoBienvenida() {
     const lista = esMovilVertical() ? IMG_BIENVENIDA_MOVIL : IMG_BIENVENIDA_ESCRITORIO;
     const nuevaImagen = lista[indiceFondoBienvenida % lista.length];
     
-    // 1. Creamos un objeto de imagen invisible en memoria
+    // 1. Precargamos la imagen en memoria para que no parpadee en blanco
     const imgTemporal = new Image();
     imgTemporal.src = nuevaImagen;
     
-    // 2. Este evento se dispara SOLO cuando el navegador ya descargó la imagen por completo
     imgTemporal.onload = function() {
-      // 3. Ahora que sabemos que la imagen está lista, desvanecemos el fondo viejo
-      vista.style.opacity = 0;
+      // 2. Activamos el desvanecimiento SOLO de la capa de fondo (el logo se queda intacto)
+      vista.classList.add("cambiando-fondo");
       
-      // 4. Esperamos a que termine el fade-out (600ms) para hacer el cambio
+      // 3. Esperamos a que se vuelva invisible (800ms) para cambiar la imagen
       setTimeout(() => {
         vista.style.backgroundImage = `url("${nuevaImagen}")`;
-        // 5. Mostramos la nueva imagen ya renderizada al 100%
-        vista.style.opacity = 1;
-      }, 600);
+        
+        // 4. Volvemos a mostrar la capa de fondo suavemente con la nueva imagen ya cargada
+        vista.classList.remove("cambiando-fondo");
+      }, 800);
     };
 
   }, SEGUNDOS_ENTRE_CAMBIOS * 1000);
