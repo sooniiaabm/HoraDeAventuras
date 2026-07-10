@@ -182,7 +182,7 @@
   padding-bottom: 1.4rem;
   border-bottom: 1px solid rgba(255,255,255,0.1);
   display: flex;
-  flex-direction: column; 
+  flex-direction: column;  /* Siempre en vertical: nombre arriba, personajes abajo */
   align-items: center;     /* Centra el input y los personajes horizontalmente */
   justify-content: center;
   gap: 0.8rem;             /* Separación limpia entre el input y el bloque de personajes */
@@ -190,28 +190,26 @@
 
 .personajes-grid {
   display: grid;
-  /* Crea una rejilla donde los personajes se envuelven de forma limpia */
-  grid-template-columns: repeat(4, auto); /* Intenta poner 4 columnas en móvil */
-  justify-content: center;                 /* Centra las filas de personajes */
-  gap: 0.8rem 0.6rem;                      /* Espacio entre filas y columnas */
+  /* Por defecto (Móvil): cuadrícula con un máximo de 4 columnas */
+  grid-template-columns: repeat(4, auto); 
+  justify-content: center;   /* Centra las filas de personajes respecto al centro de la pantalla */
+  gap: 0.8rem 0.6rem;        /* Espacio entre filas y columnas */
   width: 100%;
   padding: 0.4rem 0;
 }
 
-/* Cuando haya 7 personajes, la segunda fila (de 3) se centrará automáticamente gracias al justify-content */
-
 /* ---------- ADAPTACIÓN PARA PC / PANTALLAS GRANDES ---------- */
 @media (min-width: 650px) {
   .jugador-config {
-    flex-direction: row;   /* En PC vuelve a ponerse todo en una elegante línea de lado a lado */
-    align-items: center;
-    gap: 1.5rem;
+    /* Mantenemos la estructura vertical también en PC para que no tire los personajes a la derecha */
+    flex-direction: column;   
+    gap: 1.2rem;
   }
   
   .personajes-grid {
-    display: flex;         /* En PC vuelven a estar todos en una sola fila fluida */
-    flex: 1;
-    overflow-x: visible;   /* No necesita scroll en pantallas grandes */
+    /* En PC: cambia automáticamente a un máximo de 7 columnas por fila */
+    grid-template-columns: repeat(7, auto); 
+    justify-content: center; /* Si hay menos de 7 o caen a la línea de abajo, se quedan centrados */
   }
 }
 
@@ -611,7 +609,7 @@ function configurarFondoBienvenida() {
   vista.style.backgroundImage = `url("${lista[indiceFondoBienvenida % lista.length]}")`;
 }
 
-// Rotación del fondo con efecto de difuminado fluido (Fade-in / Fade-out)
+// Rotación del fondo con precarga en tiempo real para evitar parpadeos
 function iniciarRotacionFondoBienvenida() {
   if (intervaloFondoBienvenida) clearInterval(intervaloFondoBienvenida);
   
@@ -621,20 +619,25 @@ function iniciarRotacionFondoBienvenida() {
     const lista = esMovilVertical() ? IMG_BIENVENIDA_MOVIL : IMG_BIENVENIDA_ESCRITORIO;
     const nuevaImagen = lista[indiceFondoBienvenida % lista.length];
     
-    // 1. Desvanecer la pantalla (Fade out)
-    vista.style.opacity = 0;
+    // 1. Creamos un objeto de imagen invisible en memoria
+    const imgTemporal = new Image();
+    imgTemporal.src = nuevaImagen;
     
-    // 2. Esperamos a que termine de ocultarse (600ms igual que el CSS) para cambiar el fondo
-    setTimeout(() => {
-      vista.style.backgroundImage = `url("${nuevaImagen}")`;
+    // 2. Este evento se dispara SOLO cuando el navegador ya descargó la imagen por completo
+    imgTemporal.onload = function() {
+      // 3. Ahora que sabemos que la imagen está lista, desvanecemos el fondo viejo
+      vista.style.opacity = 0;
       
-      // 3. Volvemos a mostrarla suavemente (Fade in)
-      vista.style.opacity = 1;
-    }, 600);
-    
+      // 4. Esperamos a que termine el fade-out (600ms) para hacer el cambio
+      setTimeout(() => {
+        vista.style.backgroundImage = `url("${nuevaImagen}")`;
+        // 5. Mostramos la nueva imagen ya renderizada al 100%
+        vista.style.opacity = 1;
+      }, 600);
+    };
+
   }, SEGUNDOS_ENTRE_CAMBIOS * 1000);
 }
-
 // Evento de click para entrar
 document.getElementById("vista-bienvenida").addEventListener("click", () => {
   if (intervaloFondoBienvenida) clearInterval(intervaloFondoBienvenida);
