@@ -330,8 +330,8 @@
   top: 1rem;
   right: 1rem;
   z-index: 999;
-  width: 70px;
-  height: 70px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   background: rgba(0,0,0,0.5);
   border: none;
@@ -568,26 +568,102 @@
 
 /* Escritorio / portátil: cartas más grandes */
 @media (min-width: 601px) {
-  .mazo-carta-flip { width: 150px; height: 210px; }
-  .mazo-frente .texto { font-size: 0.85rem; }
-  .mazo-frente .tipo { font-size: 0.68rem; }
+  .mazo-carta-flip { width: 190px; height: 266px; }
+  .mazo-frente { padding: 1rem; gap: 0.6rem; }
+  .mazo-frente .texto { font-size: 1rem; line-height: 1.25; }
+  .mazo-frente .tipo { font-size: 0.75rem; }
 }
 
 /* Móvil: 2 cartas por fila, la 3ª cae debajo centrada */
 @media (max-width: 600px) {
   .mazos-contenedor {
     gap: 0.8rem;
-    max-width: calc(2 * 100px + 0.8rem); /* ancho justo para 2 cartas */
+    max-width: calc(2 * 128px + 0.8rem); /* ancho justo para 2 cartas */
     margin: 0 auto;
   }
-  .mazo-carta-flip { width: 100px; height: 140px; }
-  .mazo-frente .texto { font-size: 0.65rem; }
+  .mazo-carta-flip { width: 128px; height: 180px; }
+  .mazo-frente { padding: 0.7rem; }
+  .mazo-frente .texto { font-size: 0.75rem; line-height: 1.2; }
+  .mazo-frente .tipo { font-size: 0.62rem; }
 
   #vista-menu { padding: 0.6rem; }
   #vista-menu h1 { font-size: 1rem; margin-bottom: 0.3rem; }
   .avatar-turno { width: 60px; height: 60px; margin-bottom: 0.3rem; }
   .nombre-turno { font-size: 1.1rem; margin: 0.2rem 0 0.5rem; }
   #btnSiguienteTurno { margin-top: 0.5rem; }
+}
+
+/* ---------- ICONO VER CARTA + VISOR REUTILIZABLE ---------- */
+.icono-ver-carta {
+  width: 46px;
+  height: 64px;
+  margin: 1.2rem auto 0;
+  background: #f4f1ff;
+  border: 2px solid rgba(255,255,255,0.6);
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+.icono-ver-carta:active { transform: scale(0.94); }
+
+.mensaje-turno-bloqueado {
+  text-align: center;
+  color: #ff6b81;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+  font-size: 1.05rem;
+}
+
+.carta-visor {
+  position: fixed;
+  left: var(--visor-x, 50%);
+  top: var(--visor-y, 50%);
+  width: 190px;
+  height: 24px;
+  transform: translate(-50%, 0) scaleY(0.15);
+  transform-origin: center top;
+  background: #fdfaf3;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.35);
+  z-index: 952;
+  transition: left 0.7s cubic-bezier(0.34,1.2,0.4,1),
+              top 0.7s cubic-bezier(0.34,1.2,0.4,1),
+              transform 0.7s cubic-bezier(0.34,1.2,0.4,1),
+              height 0.7s cubic-bezier(0.34,1.2,0.4,1);
+}
+.carta-visor img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.visor-carta.abierta .carta-visor { transform: translate(-50%, -90px) scaleY(1); height: 230px; }
+.visor-carta.zoom .carta-visor {
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%) scale(1.9);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+}
+.visor-carta.cerrando .carta-visor {
+  transition: left 0.55s cubic-bezier(0.55,0,0.85,0.35),
+              top 0.55s cubic-bezier(0.55,0,0.85,0.35),
+              transform 0.55s cubic-bezier(0.55,0,0.85,0.35),
+              height 0.5s ease-in 0.05s,
+              opacity 0.4s ease 0.25s;
+}
+.visor-carta.cerrando.tirando .carta-visor {
+  top: 120%;
+  transform: translate(-50%, -50%) scale(0.2);
+  height: 24px;
+  opacity: 0;
+}
+
+@media (max-width: 600px) {
+  .carta-visor { width: 160px; }
+  .visor-carta.abierta .carta-visor { height: 190px; transform: translate(-50%, -75px) scaleY(1); }
+  .visor-carta.zoom .carta-visor { left: 50%; top: 50%; transform: translate(-50%, -50%) scale(1.7); }
 }
 
  /* ---------- PERSONALIZACION POR PERSONAJE ---------- */
@@ -597,6 +673,18 @@
   align-items: center;
   justify-content: center;
   transition: background-color 0.4s ease;
+}
+
+#vista-menu.turno-bloqueado {
+  background-color: #000 !important;
+}
+#vista-menu.turno-bloqueado .avatar-turno,
+#vista-menu.turno-bloqueado .nombre-turno {
+  opacity: 0.35;
+}
+#vista-menu.turno-bloqueado .mazos-contenedor,
+#vista-menu.turno-bloqueado .icono-ver-carta {
+  display: none;
 }
 
  .avatar-turno {
@@ -785,13 +873,23 @@
     </div>
   </div>
 
+  <button class="icono-ver-carta" id="btnVerCartaPersonaje" aria-label="Ver tu carta de personaje">🂠</button>
+  <div class="mensaje-turno-bloqueado" id="mensajeTurnoBloqueado" style="display:none;">Pierdes este turno 😢</div>
+
   <button id="btnSiguienteTurno">Siguiente jugador</button>
 
   <div class="footer-link"><a href="#" id="btnReiniciarTodo">Reiniciar partida</a></div>
 </div>
 
- 
- 
+<!-- VISOR DE CARTA REUTILIZABLE (sin sobre) -->
+<div class="visor-carta" id="visorCarta">
+  <div class="carta-visor" id="cartaVisorDoblada">
+    <img id="imgCartaVisor" src="" alt="">
+  </div>
+</div>
+<div class="fondo-oscuro-carta" id="fondoOscuroVisor"></div>
+<button class="btn-cerrar-carta" id="btnCerrarVisor">✕</button>
+
 <!-- BARRIDO NEGRO -->
 <div class="barrido-negro" id="barridoNegro"></div>
  
@@ -912,11 +1010,12 @@ function finalizarConfiguracion() {
     jugadores.push({ id: i, nombre, personaje });
   });
 
-  estado = {
+estado = {
     jugadores, turnoIndex: 0,
     poolVentaja: mezclar([...VENTAJAS]),
     poolDesventaja: mezclar([...DESVENTAJAS]),
-    poolCaracol: mezclar([...VENTAJAS.map(t=>({texto:t,tipo:"Ventaja"})), ...DESVENTAJAS.map(t=>({texto:t,tipo:"Desventaja"}))])
+    poolCaracol: mezclar([...VENTAJAS.map(t=>({texto:t,tipo:"Ventaja"})), ...DESVENTAJAS.map(t=>({texto:t,tipo:"Desventaja"}))]),
+    efectosJugadores: {}
   };
   guardarEstado();
 
@@ -1158,7 +1257,22 @@ function irAMenuTurno() {
 
   document.querySelectorAll(".mazo-carta-flip").forEach(c => c.classList.remove("girada"));
   document.getElementById("mazosContenedor").classList.remove("desactivado");
-  document.getElementById("btnSiguienteTurno").classList.remove("visible");
+
+  const vistaMenu = document.getElementById("vista-menu");
+  const mensajeBloqueado = document.getElementById("mensajeTurnoBloqueado");
+  const bloqueado = !!(estado.efectosJugadores && estado.efectosJugadores[jugador.id] && estado.efectosJugadores[jugador.id].pierdeTurno);
+
+  if (bloqueado) {
+    vistaMenu.classList.add("turno-bloqueado");
+    mensajeBloqueado.style.display = "block";
+    document.getElementById("btnSiguienteTurno").classList.add("visible");
+    delete estado.efectosJugadores[jugador.id]; // el efecto ya se ha aplicado, se consume
+    guardarEstado();
+  } else {
+    vistaMenu.classList.remove("turno-bloqueado");
+    mensajeBloqueado.style.display = "none";
+    document.getElementById("btnSiguienteTurno").classList.remove("visible");
+  }
 
   if (!musica.paused) musica.pause();
   btnMusica.classList.remove("visible");
@@ -1169,13 +1283,20 @@ function sacarCarta(mazo) {
   else if (mazo === "desventaja") { if (estado.poolDesventaja.length === 0) estado.poolDesventaja = mezclar([...DESVENTAJAS]); texto = estado.poolDesventaja.pop(); tipo = "Desventaja"; }
   else { if (estado.poolCaracol.length === 0) estado.poolCaracol = mezclar([...VENTAJAS.map(t=>({texto:t,tipo:"Ventaja"})), ...DESVENTAJAS.map(t=>({texto:t,tipo:"Desventaja"}))]); const c = estado.poolCaracol.pop(); texto = c.texto; tipo = c.tipo; }
 
-  const cartaEl = document.querySelector(`.mazo-carta-flip[data-mazo="${mazo}"]`);
+const cartaEl = document.querySelector(`.mazo-carta-flip[data-mazo="${mazo}"]`);
   cartaEl.querySelector(".tipo").textContent = tipo;
   cartaEl.querySelector(".texto").textContent = texto;
   cartaEl.classList.add("girada");
 
   document.getElementById("mazosContenedor").classList.add("desactivado");
   document.getElementById("btnSiguienteTurno").classList.add("visible");
+
+  // Efecto especial: "Pierdes un turno" se aplica en la PRÓXIMA vez que le toque a este jugador
+  if (texto === "Pierdes un turno") {
+    const jugadorActual = estado.jugadores[estado.turnoIndex % estado.jugadores.length];
+    estado.efectosJugadores = estado.efectosJugadores || {};
+    estado.efectosJugadores[jugadorActual.id] = { pierdeTurno: true };
+  }
 
   guardarEstado();
 }
@@ -1196,7 +1317,60 @@ document.getElementById("mazosContenedor").addEventListener("click", (e) => {
     sacarCarta(btn.dataset.mazo);
   }
 });
- 
+
+// =============================================================================
+// 4.5 VISOR DE CARTA (reutilizable desde el menú, sin sobre)
+// =============================================================================
+const visorCarta = document.getElementById("visorCarta");
+const cartaVisorDoblada = document.getElementById("cartaVisorDoblada");
+const imgCartaVisor = document.getElementById("imgCartaVisor");
+const fondoOscuroVisor = document.getElementById("fondoOscuroVisor");
+const btnCerrarVisor = document.getElementById("btnCerrarVisor");
+const btnVerCartaPersonaje = document.getElementById("btnVerCartaPersonaje");
+
+function abrirVisorCarta() {
+  if (visorCarta.classList.contains("abierta")) return;
+
+  const jugador = estado.jugadores[estado.turnoIndex % estado.jugadores.length];
+  const personaje = PERSONAJES.find(p => p.id === jugador.personaje);
+  imgCartaVisor.src = personaje ? personaje.carta : "";
+
+  const rect = btnVerCartaPersonaje.getBoundingClientRect();
+  document.documentElement.style.setProperty('--visor-x', (rect.left + rect.width / 2) + 'px');
+  document.documentElement.style.setProperty('--visor-y', (rect.top + rect.height / 2) + 'px');
+
+  visorCarta.classList.remove("cerrando", "tirando", "zoom");
+  void cartaVisorDoblada.offsetWidth;
+  visorCarta.classList.add("abierta");
+
+  setTimeout(() => {
+    visorCarta.classList.add("zoom");
+    fondoOscuroVisor.classList.add("visible");
+    btnCerrarVisor.classList.add("visible");
+  }, 700);
+}
+
+function cerrarVisorCarta() {
+  if (!visorCarta.classList.contains("zoom")) return;
+
+  btnCerrarVisor.classList.remove("visible");
+  fondoOscuroVisor.classList.remove("visible");
+
+  visorCarta.classList.remove("zoom");
+  visorCarta.classList.add("cerrando");
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { visorCarta.classList.add("tirando"); });
+  });
+
+  setTimeout(() => {
+    visorCarta.classList.remove("abierta", "cerrando", "tirando");
+  }, 650);
+}
+
+btnVerCartaPersonaje.addEventListener("click", abrirVisorCarta);
+btnCerrarVisor.addEventListener("click", cerrarVisorCarta);
+
 // =============================================================================
 // 5. TRANSICIONES (Barrido negro) - CÓDIGO CORREGIDO
 // =============================================================================
