@@ -391,7 +391,7 @@
 }
 .comic-personaje {
   position: absolute;
-  bottom: 80px;
+  bottom: 0;
   left: 50%;
   transform: translateX(-50%);
   max-height: 72vh;
@@ -1143,6 +1143,13 @@ function finalizarConfiguracion() {
     jugadores.push({ id: i, nombre, personaje });
   });
 
+  // Repartimos las cartas de personaje al azar, una distinta para cada jugador
+  // (no tiene por qué coincidir con el personaje que cada uno eligió para jugar).
+  const cartasBarajadas = mezclar(PERSONAJES.map(p => p.carta));
+  jugadores.forEach((jugador, i) => {
+    jugador.cartaAsignada = cartasBarajadas[i % cartasBarajadas.length];
+  });
+
 estado = {
     jugadores, turnoIndex: 0,
     poolVentaja: mezclar([...VENTAJAS]),
@@ -1401,7 +1408,7 @@ function irASobreJugador(indice) {
   const personaje = PERSONAJES.find(p => p.id === jugador.personaje);
 
   document.getElementById("tituloSobre").textContent = "Toca el sobre, " + jugador.nombre;
-  document.getElementById("imgCartaSobre").src = personaje ? personaje.carta : "";
+  document.getElementById("imgCartaSobre").src = jugador.cartaAsignada || (personaje ? personaje.carta : "");
   document.getElementById("vista-sobre").style.backgroundColor = personaje ? personaje.color : "";
 
   // Reiniciamos el estado visual del sobre
@@ -1592,7 +1599,7 @@ function abrirVisorCarta() {
 
   const jugador = estado.jugadores[estado.turnoIndex % estado.jugadores.length];
   const personaje = PERSONAJES.find(p => p.id === jugador.personaje);
-  imgCartaVisor.src = personaje ? personaje.carta : "";
+  imgCartaVisor.src = jugador.cartaAsignada || (personaje ? personaje.carta : "");
 
   const rect = btnVerCartaPersonaje.getBoundingClientRect();
   document.documentElement.style.setProperty('--visor-x', (rect.left + rect.width / 2) + 'px');
