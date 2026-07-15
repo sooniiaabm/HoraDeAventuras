@@ -372,7 +372,31 @@
 .btn-musica.silenciado::after {
   opacity: 1;
 }
-
+/* ---------- VISTA TRANSICION (imagen asomando) ---------- */
+#vista-transicion {
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  transition: background-color 0.4s ease;
+}
+.imagen-rincon {
+  position: fixed;
+  right: 4%;
+  bottom: -60%;
+  width: 240px;
+  max-width: 60vw;
+  pointer-events: none;
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));
+  transition: bottom 0.7s cubic-bezier(0.34,1.2,0.4,1);
+}
+.imagen-rincon.asomada {
+  bottom: -15%; /* solo se asoma un poco, no entra del todo */
+}
+@media (max-width: 600px) {
+  .imagen-rincon { width: 160px; bottom: -55%; }
+  .imagen-rincon.asomada { bottom: -12%; }
+}
 /* ---------- VISTA SOBRE ---------- */
 #vista-sobre {
   align-items: center;
@@ -829,6 +853,11 @@
   </div>
 </div>
 
+<!-- VISTA TRANSICION (imagen que se asoma desde abajo, tipo rincón) -->
+<div class="vista" id="vista-transicion">
+  <img src="transicion/imagen.png" alt="" class="imagen-rincon" id="imgRincon">
+</div>
+ 
 <!-- VISTA SOBRE / CARTA -->
 <div class="vista" id="vista-sobre">
   <h1 id="tituloSobre">Toca el sobre</h1>
@@ -1041,7 +1070,25 @@ estado = {
   const personajePrimero = PERSONAJES.find(p => p.id === primerJugador.personaje);
 
   presentacionIndex = 0;
-  transicionABarrido(() => { irASobreJugador(0); }, personajePrimero ? personajePrimero.color : null);
+  transicionABarrido(() => { irATransicion(personajePrimero); }, personajePrimero ? personajePrimero.color : null);
+}
+
+function irATransicion(personaje) {
+  mostrarVista("transicion");
+  const vista = document.getElementById("vista-transicion");
+  const img = document.getElementById("imgRincon");
+
+  vista.style.backgroundColor = personaje ? personaje.color : "";
+  img.classList.remove("asomada");
+  void img.offsetWidth; // fuerza el reinicio de la transición
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { img.classList.add("asomada"); });
+  });
+
+  setTimeout(() => {
+    transicionABarrido(() => { irASobreJugador(0); }, personaje ? personaje.color : null);
+  }, 1600);
 }
 // Ahora sí, fuera de la función, añadimos los eventos:
 btnListo.addEventListener("click", finalizarConfiguracion);
