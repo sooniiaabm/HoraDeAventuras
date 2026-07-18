@@ -1114,9 +1114,9 @@ iniciarRotacionFondoBienvenida();
 // 3. VISTA CONFIGURACIÓN (Gestión de jugadores, nombres y personajes)
 // =============================================================================
 let estado = cargarEstado();
-const VENTAJAS = ["Avanza dos casillas", "Avanza una casillas", "Avanza tres casillas", "Avanza cuatro casillas", "Avanza cinco casillas", "Avanza seis casillas", "Intercambia tus cartas con quien quieras", "Repite turno", "Viaja al reino que quieras", "Roba una carta a otro jugador", "Elige tu próxima casilla"];
-const DESVENTAJAS = ["Pierdes un turno", "Retrocede tres casillas", "Vuelve a la casilla de salida", "Pierde un turno en el reino del hielo", "Pierde un turno en la nocheesfera", "Pierde un turno en el reino del hielo", "Pierde un turno en el reino del hielo"];
-const DORSOS_MAZO = {
+const VENTAJAS = ["Avanza una casilla", "Avanza dos casillas", "Avanza tres casillas", "Avanza cuatro casillas", "Avanza cinco casillas", "Avanza seis casillas", "Roba una carta a quien quieras", "Roba una carta del mazo de objetos" , "Roba una carta al jugador de tu izquierda" , "Roba una carta al jugador de tu derecha" , "Repite turno", "Viaja al reino que quieras", "Elige tu próxima casilla"];
+const DESVENTAJAS = ["Pierdes un turno", "Retrocede una casilla", "Retrocede dos casillas", "Retrocede tres casillas", "Retrocede cuatro casillas", "Retrocede cinco casillas", "Retrocede seis casillas", "Vuelve a la casilla de salida", "El jugador de la izquierda te roba una carta", "El jugador de la derecha te roba una carta", "Ve al reino que elija otro jugador, y pierde un turno"];
+ const DORSOS_MAZO = {
   ventaja: "cartas/dorso-prismo.png",
   desventaja: "cartas/dorso-lich.png",
   caracol: "cartas/dorso-caracol.png"
