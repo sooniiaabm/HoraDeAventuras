@@ -1514,10 +1514,10 @@ function irAMenuTurno() {
     document.getElementById("btnSiguienteTurno").classList.add("visible");
     delete estado.efectosJugadores[jugador.id]; // el efecto ya se ha aplicado, se consume
     guardarEstado();
-  } else {
+} else {
     vistaMenu.classList.remove("turno-bloqueado");
     mensajeBloqueado.style.display = "none";
-    document.getElementById("btnSiguienteTurno").classList.remove("visible");
+    document.getElementById("btnSiguienteTurno").classList.add("visible");
   }
 
   if (!musica.paused) musica.pause();
